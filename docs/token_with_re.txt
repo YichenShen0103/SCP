@@ -1,0 +1,7 @@
+identifier
+  alphabet  "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_"
+  regular_expression "^[A-Za-z_][A-Za-z0-9_]*$"
+
+number
+  alphabet  "0123456789"
+  regular_expression "^[0-9]+$"
