@@ -1,12 +1,16 @@
+#include "lexer/dfa.h"
+
 #include <iostream>
 #include <memory>
+#include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
-#include "../include/dfa.h"
+namespace scp::lexer {
 
 struct VectorHash {
-  std::size_t operator()(const std::vector<int> &v) const noexcept {
+  auto operator()(const std::vector<int> &v) const noexcept -> std::size_t {
     std::size_t hash = 0;
     for (int num : v) {
       hash ^= std::hash<int>{}(num) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
@@ -16,36 +20,31 @@ struct VectorHash {
 };
 
 struct VectorEqual {
-  bool operator()(const std::vector<int> &a,
-                  const std::vector<int> &b) const noexcept {
-    return a == b;
-  }
+  auto operator()(const std::vector<int> &a, const std::vector<int> &b) const noexcept -> bool { return a == b; }
 };
 
-std::vector<std::shared_ptr<std::vector<int>>>
-compress(std::vector<std::vector<int>> input) {
+auto Compress(std::vector<std::vector<int>> input) -> std::vector<std::shared_ptr<std::vector<int>>> {
   using RowPtr = std::shared_ptr<std::vector<int>>;
-  std::unordered_map<std::vector<int>, RowPtr, VectorHash, VectorEqual> rowPool;
+  std::unordered_map<std::vector<int>, RowPtr, VectorHash, VectorEqual> row_pool;
   std::vector<RowPtr> result;
   result.reserve(input.size());
 
   for (auto &row : input) {
-    auto it = rowPool.find(row);
-    if (it != rowPool.end()) {
+    auto it = row_pool.find(row);
+    if (it != row_pool.end()) {
       result.push_back(it->second);
     } else {
       auto ptr = std::make_shared<std::vector<int>>(std::move(row));
-      rowPool[*ptr] = ptr;
+      row_pool[*ptr] = ptr;
       result.push_back(ptr);
     }
   }
   return result;
 }
 
-DeterministicFiniteAutomata::DeterministicFiniteAutomata(int num_states,
-                                                         std::string alphabet,
-                                                         std::string token_name)
-    : token_class_(token_name), num_states_(num_states) {
+DeterministicFiniteAutomata::DeterministicFiniteAutomata(int num_states, std::string alphabet,
+                                                         core::TokenType token_class)
+    : token_class_(token_class), num_states_(num_states) {
   states_transition_.resize(num_states);
   alphabet_size_ = alphabet.size();
 
@@ -61,18 +60,16 @@ DeterministicFiniteAutomata::DeterministicFiniteAutomata(int num_states,
 
 auto DeterministicFiniteAutomata::Release() -> void {
   released_ = true;
-  states_transition_released_ = compress(states_transition_);
+  states_transition_released_ = Compress(states_transition_);
 }
 
-auto DeterministicFiniteAutomata::AddTransition(int from_state, char symbol,
-                                                int to_state) -> bool {
+auto DeterministicFiniteAutomata::AddTransition(int from_state, char symbol, int to_state) -> bool {
   if (released_) {
     std::cerr << "DFA is released, cannot add transitions." << std::endl;
     return false;
   }
 
-  if (from_state < 0 || from_state >= num_states_ || to_state < 0 ||
-      to_state >= num_states_) {
+  if (from_state < 0 || from_state >= num_states_ || to_state < 0 || to_state >= num_states_) {
     std::cerr << "Invalid state." << std::endl;
     return false;
   }
@@ -115,8 +112,7 @@ auto DeterministicFiniteAutomata::Evaluate(char byte) -> bool {
   int symbol_index = alphabet_[byte];
   current_state_ = (*states_transition_released_[current_state_])[symbol_index];
 
-  if (current_state_ == -1) {
-    return false;
-  }
-  return true;
+  return current_state_ != -1;
 }
+
+}  // namespace scp::lexer

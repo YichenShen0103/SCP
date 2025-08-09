@@ -346,12 +346,13 @@ GitHub.sublime-settings
 tmtags
 
 ##### VisualStudioCode
-.vscode/*
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+.VSCodeCounter
 
 # Local History for Visual Studio Code
 .history/
@@ -1043,3 +1044,6 @@ dkms.conf
 *.uf2
 # Raspberry Pi Pico disassembler file
 *.dis
+
+# Developer files
+TODO.md

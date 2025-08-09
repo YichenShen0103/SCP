@@ -1,156 +1,219 @@
-#include <iostream>
+#include <gtest/gtest.h>
+#include <fstream>
 #include <memory>
+#include <string>
+#include <vector>
 
-#include "../include/dfa.h"
+#include "core/token.h"
+#include "lexer/dfa.h"
 
-int main()
-{
-  // Example usage of DeterministicFiniteAutomata
-  std::string id_alphabet = "0123456789abcdefghijklmnopqrstuvwxyz"
-                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-  std::string number_alphabet = "0123456789";
-  std::unique_ptr<DeterministicFiniteAutomata> number =
-      std::make_unique<DeterministicFiniteAutomata>(2, number_alphabet,
-                                                    "NUMBER"); // ^[0-9]+$
-  std::unique_ptr<DeterministicFiniteAutomata> identifier =
-      std::make_unique<DeterministicFiniteAutomata>(
-          2, id_alphabet, "IDENTIFIER"); // ^[A-Za-z_][A-Za-z0-9_]*$
+namespace scp::test {
 
-  // Set up NUMBER DFA transitions: ^[0-9]+$
-  number->AddTransition(0, '0', 1); // 0 -> 1 on '0'
-  number->AddTransition(1, '0', 1); // 1 -> 1 on '0' (stay in accepting state)
-  for (int i = 0; i < 9; ++i)
-  {
-    char c = '1' + i;
-    number->AddTransition(0, c, 1); // 0 -> 1 on '1'-'9'
-    number->AddTransition(1, c, 1); // 1 -> 1 on '1'-'9'
-  }
-  number->SetFinalState(1); // State 1 is accepting state for numbers
+class DFATest : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    // Create NUMBER DFA: ^[0-9]+$
+    std::string number_alphabet = "0123456789";
+    number_dfa_ = std::make_unique<lexer::DeterministicFiniteAutomata>(2, number_alphabet, core::TokenType::NUMBER);
 
-  // Set up IDENTIFIER DFA transitions: ^[A-Za-z_][A-Za-z0-9_]*$
-  // First, handle initial characters (letters and underscore)
-  for (char c = 'a'; c <= 'z'; ++c)
-  {
-    identifier->AddTransition(0, c, 1); // 0 -> 1 on letters
-  }
-  for (char c = 'A'; c <= 'Z'; ++c)
-  {
-    identifier->AddTransition(0, c, 1); // 0 -> 1 on letters
-  }
-  identifier->AddTransition(0, '_', 1); // 0 -> 1 on underscore
-
-  // Then, handle continuation characters (letters, digits, underscore)
-  for (char c : id_alphabet)
-  {
-    identifier->AddTransition(1, c, 1); // 1 -> 1 on any valid identifier char
-  }
-  identifier->SetFinalState(1); // State 1 is accepting state for identifiers
-
-  number->Release();
-  identifier->Release();
-
-  std::vector<std::unique_ptr<DeterministicFiniteAutomata>> dfa_list;
-  std::vector<bool> survival_list;
-
-  // Add the DFAs to the list
-  dfa_list.push_back(std::move(number));
-  dfa_list.push_back(std::move(identifier));
-
-  // Initialize survival list
-  survival_list.resize(dfa_list.size());
-
-  std::vector<std::string> inputs;
-  inputs.push_back("aa 123");
-  inputs.push_back("ababc 4a56b7");
-  inputs.push_back("xyz_789");
-
-  bool have_survival = false;
-  for (size_t input_idx = 0; input_idx < inputs.size(); ++input_idx)
-  {
-    const std::string &input = inputs[input_idx];
-    std::cout << "Evaluating input: " << input << std::endl;
-    for (size_t i = 0; i < dfa_list.size(); ++i)
-    {
-      dfa_list[i]->Init();
-      survival_list[i] = true;
+    // Add transitions for digits
+    for (char c = '0'; c <= '9'; ++c) {
+      number_dfa_->AddTransition(0, c, 1);  // 0 -> 1 on any digit
+      number_dfa_->AddTransition(1, c, 1);  // 1 -> 1 on any digit (self-loop)
     }
+    number_dfa_->SetFinalState(1);
+    number_dfa_->Release();
 
-    size_t prev = 0;
-    size_t j = 0;
+    // Create IDENTIFIER DFA: ^[A-Za-z_][A-Za-z0-9_]*$
+    std::string id_alphabet =
+        "0123456789abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+    identifier_dfa_ = std::make_unique<lexer::DeterministicFiniteAutomata>(2, id_alphabet, core::TokenType::IDENTIFIER);
 
-    while (j < input.size())
-    {
-      // Skip whitespace
-      while (j < input.size() && input[j] == ' ')
-      {
-        ++j;
-      }
-      if (j >= input.size())
-        break;
+    // Add transitions for initial characters (letters and underscore)
+    for (char c = 'a'; c <= 'z'; ++c) {
+      identifier_dfa_->AddTransition(0, c, 1);
+    }
+    for (char c = 'A'; c <= 'Z'; ++c) {
+      identifier_dfa_->AddTransition(0, c, 1);
+    }
+    identifier_dfa_->AddTransition(0, '_', 1);
 
-      prev = j;
-      // Reset DFAs for next token
-      for (size_t i = 0; i < dfa_list.size(); ++i)
-      {
-        dfa_list[i]->Init();
-        survival_list[i] = true;
-      }
+    // Add transitions for continuation characters (letters, digits, underscore)
+    for (char c : id_alphabet) {
+      identifier_dfa_->AddTransition(1, c, 1);
+    }
+    identifier_dfa_->SetFinalState(1);
+    identifier_dfa_->Release();
+  }
 
-      size_t last_accepted_pos = prev;
-      int last_accepted_dfa = -1;
+  std::unique_ptr<lexer::DeterministicFiniteAutomata> number_dfa_;
+  std::unique_ptr<lexer::DeterministicFiniteAutomata> identifier_dfa_;
 
-      // Try to consume characters as long as possible
-      while (j < input.size() && input[j] != ' ')
-      {
-        have_survival = false;
+  // Helper function to read file content
+  auto ReadTestFile(const std::string &filename) -> std::string {
+    std::ifstream file("test/data/" + filename);
+    if (!file.is_open()) {
+      return "";
+    }
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    return content;
+  }
 
-        for (size_t i = 0; i < dfa_list.size(); ++i)
-        {
-          if (survival_list[i])
-          {
-            if (!dfa_list[i]->Evaluate(input[j]))
-            {
-              survival_list[i] = false;
-            }
-            else
-            {
-              have_survival = true;
-              // Check if this DFA is in accepting state
-              if (dfa_list[i]->isAccepted())
-              {
-                last_accepted_pos = j + 1;
-                last_accepted_dfa = i;
-              }
-            }
-          }
-        }
-
-        // If no DFA can continue, break
-        if (!have_survival)
-        {
-          break;
-        }
-
-        ++j;
-      }
-
-      // If we found an accepted token, output it
-      if (last_accepted_dfa != -1)
-      {
-        std::cout << dfa_list[last_accepted_dfa]->getTokenClass()
-                  << " accepted input: "
-                  << input.substr(prev, last_accepted_pos - prev) << std::endl;
-        j = last_accepted_pos;
-      }
-      else
-      {
-        // Skip the problematic character
-        std::cout << "No valid token found at position " << prev
-                  << " for character '" << input[prev] << "'" << std::endl;
-        ++j;
+  // Helper function to test if DFA accepts a string
+  auto TestDFAAccepts(lexer::DeterministicFiniteAutomata *dfa, const std::string &input) -> bool {
+    dfa->Init();
+    for (char c : input) {
+      if (!dfa->Evaluate(c)) {
+        return false;
       }
     }
+    return dfa->IsAccepted();
   }
+};
 
-  return 0;
+// Test NUMBER DFA with valid numbers
+TEST_F(DFATest, NumberDFAValidInputs) {
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "0"));
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "1"));
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "123"));
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "999"));
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "42"));
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "1000000"));
 }
+
+// Test NUMBER DFA with invalid inputs
+TEST_F(DFATest, NumberDFAInvalidInputs) {
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), ""));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), "a"));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), "123a"));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), "a123"));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), "_123"));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), "12.3"));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), " 123"));
+  EXPECT_FALSE(TestDFAAccepts(number_dfa_.get(), "123 "));
+}
+
+// Test IDENTIFIER DFA with valid identifiers
+TEST_F(DFATest, IdentifierDFAValidInputs) {
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "a"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "_"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "variable"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "variable_name"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "_underscore_start"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "var123"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "_123"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "camelCase"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "PascalCase"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "__double_underscore"));
+}
+
+// Test IDENTIFIER DFA with invalid identifiers
+TEST_F(DFATest, IdentifierDFAInvalidInputs) {
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), ""));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), "123"));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), "123abc"));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), " variable"));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), "variable "));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), "var@invalid"));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), "var$bad"));
+  EXPECT_FALSE(TestDFAAccepts(identifier_dfa_.get(), "var.name"));
+}
+
+// Test DFA initialization and reset
+TEST_F(DFATest, DFAInitialization) {
+  // Test that DFA starts in initial state
+  number_dfa_->Init();
+  EXPECT_FALSE(number_dfa_->IsAccepted());  // Should not be in accepting state initially
+
+  // Process some input
+  EXPECT_TRUE(number_dfa_->Evaluate('1'));
+  EXPECT_TRUE(number_dfa_->IsAccepted());  // Should be in accepting state after '1'
+
+  // Reset and test again
+  number_dfa_->Init();
+  EXPECT_FALSE(number_dfa_->IsAccepted());  // Should be back to initial state
+
+  // Test identifier DFA
+  identifier_dfa_->Init();
+  EXPECT_FALSE(identifier_dfa_->IsAccepted());  // Should not be in accepting state initially
+
+  EXPECT_TRUE(identifier_dfa_->Evaluate('a'));
+  EXPECT_TRUE(identifier_dfa_->IsAccepted());  // Should be in accepting state after 'a'
+
+  identifier_dfa_->Init();
+  EXPECT_FALSE(identifier_dfa_->IsAccepted());  // Should be back to initial state
+}
+
+// Test DFA token type retrieval
+TEST_F(DFATest, TokenTypeRetrieval) {
+  EXPECT_EQ(number_dfa_->GetTokenClassRaw(), core::TokenType::NUMBER);
+  EXPECT_EQ(identifier_dfa_->GetTokenClassRaw(), core::TokenType::IDENTIFIER);
+
+  EXPECT_STREQ(number_dfa_->GetTokenClass().c_str(), "NUMBER");
+  EXPECT_STREQ(identifier_dfa_->GetTokenClass().c_str(), "IDENTIFIER");
+}
+
+// Test DFA with file inputs
+TEST_F(DFATest, FileInputTests) {
+  // Test simple number file
+  std::string number_content = ReadTestFile("simple_number.scpl");
+  if (!number_content.empty()) {
+    // Remove potential newline
+    if (!number_content.empty() && number_content.back() == '\n') {
+      number_content.pop_back();
+    }
+    EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), number_content));
+  }
+
+  // Test simple identifier file
+  std::string identifier_content = ReadTestFile("simple_identifier.scpl");
+  if (!identifier_content.empty()) {
+    // Remove potential newline
+    if (!identifier_content.empty() && identifier_content.back() == '\n') {
+      identifier_content.pop_back();
+    }
+    EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), identifier_content));
+  }
+}
+
+// Test DFA partial matching behavior
+TEST_F(DFATest, PartialMatching) {
+  // Test that DFA can accept intermediate states during processing
+  number_dfa_->Init();
+  EXPECT_TRUE(number_dfa_->Evaluate('1'));
+  EXPECT_TRUE(number_dfa_->IsAccepted());  // Should accept "1"
+
+  EXPECT_TRUE(number_dfa_->Evaluate('2'));
+  EXPECT_TRUE(number_dfa_->IsAccepted());  // Should still accept "12"
+
+  EXPECT_TRUE(number_dfa_->Evaluate('3'));
+  EXPECT_TRUE(number_dfa_->IsAccepted());  // Should still accept "123"
+
+  // Test failure case
+  EXPECT_FALSE(number_dfa_->Evaluate('a'));  // Should fail on non-digit
+  EXPECT_FALSE(number_dfa_->IsAccepted());   // Should no longer be accepted
+}
+
+// Test edge cases
+TEST_F(DFATest, EdgeCases) {
+  // Test single character inputs
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "0"));
+  EXPECT_TRUE(TestDFAAccepts(number_dfa_.get(), "9"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "a"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "Z"));
+  EXPECT_TRUE(TestDFAAccepts(identifier_dfa_.get(), "_"));
+
+  // Test that numbers can't start with letters
+  identifier_dfa_->Init();
+  EXPECT_TRUE(identifier_dfa_->Evaluate('a'));
+  EXPECT_TRUE(identifier_dfa_->IsAccepted());
+  EXPECT_TRUE(identifier_dfa_->Evaluate('1'));  // Should accept digit after letter
+  EXPECT_TRUE(identifier_dfa_->IsAccepted());
+
+  // But numbers can't start with letters
+  number_dfa_->Init();
+  EXPECT_FALSE(number_dfa_->Evaluate('a'));  // Should fail immediately
+}
+
+}  // namespace scp::test

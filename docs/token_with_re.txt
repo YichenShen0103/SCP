@@ -5,3 +5,27 @@ identifier
 number
   alphabet  "0123456789"
   regular_expression "^[0-9]+$"
+
+plus
+  alphabet  "+"
+  regular_expression "^[+]$"
+
+left_paren
+  alphabet  "("
+  regular_expression "^[(]$"
+
+right_paren
+  alphabet  ")"
+  regular_expression "^[)]$"
+
+times
+  alphabet  "*"
+  regular_expression "^[*]$"
+
+assign
+  alphabet  "<-"
+  regular_expression "^[<-]$"
+
+semicolon
+  alphabet  ";"
+  regular_expression "^[;]$"

@@ -1,0 +1,4 @@
+variable1 <- 100;
+variable2 <- 200;
+result <- (variable1 + variable2) * 2;
+final_result <- result + 50;
