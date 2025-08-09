@@ -76,7 +76,7 @@ auto DeterministicFiniteAutomata::AddTransition(int from_state, char symbol, int
 
   auto symbol_it = alphabet_.find(symbol);
   if (symbol_it == alphabet_.end()) {
-    std::cerr << "Symbol '" << symbol << "' not in alphabet." << std::endl;
+    std::cerr << "Symbol '" << symbol << "' (ASCII: " << static_cast<int>(symbol) << ") not in alphabet." << std::endl;
     return false;
   }
 
@@ -106,6 +106,7 @@ auto DeterministicFiniteAutomata::Evaluate(char byte) -> bool {
   }
 
   if (alphabet_.find(byte) == alphabet_.end()) {
+    current_state_ = -1;
     return false;
   }
 

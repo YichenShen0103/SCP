@@ -9,16 +9,14 @@
 
 namespace scp::lexer {
 
-// Alphabet constants
-const char ID_ALPHABET[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-const char NUMBER_ALPHABET[] = "0123456789";
-
 Lexer::Lexer() { InitializeDFAs(); }
 
 void Lexer::InitializeDFAs() {
   // Create DFA instances
-  number_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, NUMBER_ALPHABET, core::TokenType::NUMBER);
-  identifier_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, ID_ALPHABET, core::TokenType::IDENTIFIER);
+  const std::string id_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+  const std::string number_alphabet = "0123456789";
+  number_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, number_alphabet, core::TokenType::NUMBER);
+  identifier_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, id_alphabet, core::TokenType::IDENTIFIER);
   plus_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, "+", core::TokenType::PLUS);
   left_paren_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, "(", core::TokenType::LEFT_PAREN);
   right_paren_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, ")", core::TokenType::RIGHT_PAREN);
@@ -82,7 +80,8 @@ void Lexer::SetupIdentifierDFA() {
   identifier_dfa_->AddTransition(0, '_', 1);
 
   // Subsequent characters can be letters, digits, or underscore
-  for (char c : ID_ALPHABET) {
+  const std::string id_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+  for (char c : id_alphabet) {
     identifier_dfa_->AddTransition(1, c, 1);
   }
   identifier_dfa_->SetFinalState(1);  // State 1 is accepting
