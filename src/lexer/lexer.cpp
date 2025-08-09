@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "constant/alphabet.h"
+#include "constant/error_messages.h"
 #include "core/token.h"
 
 namespace scp::lexer {
@@ -12,17 +14,23 @@ namespace scp::lexer {
 Lexer::Lexer() { InitializeDFAs(); }
 
 void Lexer::InitializeDFAs() {
-  // Create DFA instances
-  const std::string id_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-  const std::string number_alphabet = "0123456789";
-  number_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, number_alphabet, core::TokenType::NUMBER);
-  identifier_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, id_alphabet, core::TokenType::IDENTIFIER);
-  plus_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, "+", core::TokenType::PLUS);
-  left_paren_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, "(", core::TokenType::LEFT_PAREN);
-  right_paren_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, ")", core::TokenType::RIGHT_PAREN);
-  times_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, "*", core::TokenType::TIMES);
-  assign_dfa_ = std::make_unique<DeterministicFiniteAutomata>(3, "<-", core::TokenType::ASSIGN);
-  semicolon_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, ";", core::TokenType::SEMICOLON);
+  // Create DFA instances using configuration constants
+  number_dfa_ =
+      std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::DIGIT_ALPHABET, core::TokenType::NUMBER);
+  identifier_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::IDENTIFIER_ALPHABET,
+                                                                  core::TokenType::IDENTIFIER);
+  plus_dfa_ =
+      std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::PLUS_ALPHABET, core::TokenType::PLUS);
+  left_paren_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::LEFT_PAREN_ALPHABET,
+                                                                  core::TokenType::LEFT_PAREN);
+  right_paren_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::RIGHT_PAREN_ALPHABET,
+                                                                   core::TokenType::RIGHT_PAREN);
+  times_dfa_ =
+      std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::TIMES_ALPHABET, core::TokenType::TIMES);
+  assign_dfa_ =
+      std::make_unique<DeterministicFiniteAutomata>(3, constant::Alphabet::ASSIGN_ALPHABET, core::TokenType::ASSIGN);
+  semicolon_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::SEMICOLON_ALPHABET,
+                                                                 core::TokenType::SEMICOLON);
 
   // Setup transitions for each DFA
   SetupNumberDFA();
@@ -61,7 +69,7 @@ void Lexer::InitializeDFAs() {
 void Lexer::SetupNumberDFA() {
   // Set up NUMBER DFA transitions: ^[0-9]+$
   // Transition from state 0 to state 1 on any digit
-  for (char c = '0'; c <= '9'; ++c) {
+  for (char c : std::string(constant::Alphabet::DIGIT_ALPHABET)) {
     number_dfa_->AddTransition(0, c, 1);
     number_dfa_->AddTransition(1, c, 1);  // Stay in accepting state
   }
@@ -80,8 +88,7 @@ void Lexer::SetupIdentifierDFA() {
   identifier_dfa_->AddTransition(0, '_', 1);
 
   // Subsequent characters can be letters, digits, or underscore
-  const std::string id_alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-  for (char c : id_alphabet) {
+  for (char c : std::string(constant::Alphabet::IDENTIFIER_ALPHABET)) {
     identifier_dfa_->AddTransition(1, c, 1);
   }
   identifier_dfa_->SetFinalState(1);  // State 1 is accepting
@@ -210,8 +217,7 @@ auto Lexer::GetNextToken(core::Token &token) -> bool {
     return true;
   }
   // Skip the problematic character
-  std::cerr << "Warning: No valid token found at position " << token_start << " for character '" << input_[token_start]
-            << "'" << std::endl;
+  std::cerr << constant::ErrorMessages::NoValidTokenFoundWithDetails(input_[token_start], token_start) << std::endl;
   ++current_pos_;
   return false;
 }

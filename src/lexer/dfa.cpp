@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include "constant/error_messages.h"
+
 namespace scp::lexer {
 
 struct VectorHash {
@@ -65,18 +67,18 @@ auto DeterministicFiniteAutomata::Release() -> void {
 
 auto DeterministicFiniteAutomata::AddTransition(int from_state, char symbol, int to_state) -> bool {
   if (released_) {
-    std::cerr << "DFA is released, cannot add transitions." << std::endl;
+    std::cerr << constant::ErrorMessages::DFA_RELEASED_CANNOT_ADD_TRANSITION << std::endl;
     return false;
   }
 
   if (from_state < 0 || from_state >= num_states_ || to_state < 0 || to_state >= num_states_) {
-    std::cerr << "Invalid state." << std::endl;
+    std::cerr << constant::ErrorMessages::INVALID_STATE << std::endl;
     return false;
   }
 
   auto symbol_it = alphabet_.find(symbol);
   if (symbol_it == alphabet_.end()) {
-    std::cerr << "Symbol '" << symbol << "' (ASCII: " << static_cast<int>(symbol) << ") not in alphabet." << std::endl;
+    std::cerr << constant::ErrorMessages::SymbolNotInAlphabetWithDetails(symbol) << std::endl;
     return false;
   }
 
@@ -86,12 +88,12 @@ auto DeterministicFiniteAutomata::AddTransition(int from_state, char symbol, int
 
 auto DeterministicFiniteAutomata::SetFinalState(int state) -> bool {
   if (released_) {
-    std::cerr << "DFA is released, cannot set final states." << std::endl;
+    std::cerr << constant::ErrorMessages::DFA_RELEASED_CANNOT_SET_FINAL << std::endl;
     return false;
   }
 
   if (state < 0 || state >= num_states_) {
-    std::cerr << "Invalid state." << std::endl;
+    std::cerr << constant::ErrorMessages::INVALID_STATE << std::endl;
     return false;
   }
 
@@ -101,7 +103,7 @@ auto DeterministicFiniteAutomata::SetFinalState(int state) -> bool {
 
 auto DeterministicFiniteAutomata::Evaluate(char byte) -> bool {
   if (!released_) {
-    std::cerr << "DFA is not released, cannot evaluate." << std::endl;
+    std::cerr << constant::ErrorMessages::DFA_NOT_RELEASED_CANNOT_EVALUATE << std::endl;
     return false;
   }
 
