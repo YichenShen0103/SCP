@@ -5,11 +5,20 @@
 #include <string>
 #include <vector>
 
+/**
+ * Print the usage information for the lexer program.
+ * @param programName The name of the program (usually argv[0]).
+ */
 void PrintUsage(const std::string &programName) {
   std::cout << "Usage: " << programName << " <input_file>" << std::endl;
   std::cout << "  input_file: Path to the source file to tokenize" << std::endl;
 }
 
+/**
+ * Read the contents of a file into a string.
+ * @param filename The name of the file to read.
+ * @return The contents of the file as a string.
+ */
 auto ReadFile(const std::string &filename) -> std::string {
   std::ifstream file(filename);
   if (!file.is_open()) {
@@ -26,6 +35,10 @@ auto ReadFile(const std::string &filename) -> std::string {
   return content;
 }
 
+/**
+ * Print the tokens found in the input file.
+ * @param tokens The vector of tokens to print.
+ */
 void PrintTokens(const std::vector<scp::core::Token> &tokens) {
   if (tokens.empty()) {
     std::cout << "No tokens found in the input file." << std::endl;
@@ -45,6 +58,12 @@ void PrintTokens(const std::vector<scp::core::Token> &tokens) {
   std::cout << "Total tokens: " << tokens.size() << std::endl;
 }
 
+/**
+ * Main entry point for the lexer program.
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ * @return Exit status code.
+ */
 auto main(int argc, char *argv[]) -> int {
   // Check command line arguments
   if (argc != 2) {

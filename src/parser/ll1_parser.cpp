@@ -19,11 +19,21 @@
 namespace scp::parser {
 
 // Help Function
+/**
+ * Check if a symbol is a terminal symbol.
+ * @param symbol The symbol to check.
+ * @param terminals The set of terminal symbols.
+ * @return True if the symbol is a terminal, false otherwise.
+ */
 auto IsTerminal(const std::string &symbol, const std::unordered_set<std::string> &terminals) -> bool {
   return terminals.find(symbol) != terminals.end();
 }
 
-// Convert TokenType to parser table terminal string
+/**
+ * Convert a token type to a string representation for the parser table.
+ * @param type The token type to convert.
+ * @return A string representation of the token type.
+ */
 auto TokenTypeToParserString(core::TokenType type) -> std::string {
   switch (type) {
     case core::TokenType::IDENTIFIER:
@@ -49,16 +59,17 @@ auto TokenTypeToParserString(core::TokenType type) -> std::string {
   }
 }
 
+/**
+ * Check if a token matches a specific terminal symbol.
+ * @param token The token to check.
+ * @param symbol The terminal symbol to match against.
+ * @return True if the token matches the symbol, false otherwise.
+ */
 auto Term(const core::Token &token, const std::string &symbol) -> bool {
   return TokenTypeToParserString(token.GetType()) == symbol;
 }
 
 // LL1Parser Implementation
-/**
- * Initializes the LL(1) parser. Main effort is to set up the parsing table
- * and other necessary structures.
- * Please refer to the `docs/ll1_grammar.txt` for more details.
- */
 void LL1Parser::Init() {
   symbols_ = {"Program", "StatementList", "Statement", "Expression", "Term", "Factor"};
   terminals_ = {"identifier", "number", "left_paren", "right_paren", "plus", "times", "assign", "semicolon", "$"};
@@ -100,10 +111,6 @@ void LL1Parser::Init() {
         {"left_paren", {"left_paren", "Expression", "right_paren"}}}}};
 }
 
-/**
- * Parses the input using the LL(1) parsing algorithm.
- * Handles epsilon productions, error recovery, and proper stack management.
- */
 auto LL1Parser::Parse() -> std::shared_ptr<core::AST> {
   // Initialize parse tree root
   std::shared_ptr<core::TreeNode> parse_root =

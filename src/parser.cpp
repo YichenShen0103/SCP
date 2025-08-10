@@ -5,6 +5,11 @@
 #include "core/ast.h"
 #include "parser/ll1_parser.h"
 
+/**
+ * Print the Abstract Syntax Tree (AST).
+ * @param node The root node of the AST.
+ * @param depth The current depth in the tree (for indentation).
+ */
 void PrintAST(const std::shared_ptr<scp::core::AST::ASTNode> &node, int depth = 0) {
   if (!node) {
     for (int i = 0; i < depth; ++i) {
@@ -46,6 +51,10 @@ void PrintAST(const std::shared_ptr<scp::core::AST::ASTNode> &node, int depth = 
   }
 }
 
+/**
+ * Print the usage information for the parser program.
+ * @param program_name The name of the program (usually argv[0]).
+ */
 void PrintUsage(const std::string &program_name) {
   std::cout << "Usage: " << program_name << " [options]" << std::endl;
   std::cout << "Options:" << std::endl;
@@ -58,6 +67,11 @@ void PrintUsage(const std::string &program_name) {
   std::cout << "  " << program_name << " -f input.scpl" << std::endl;
 }
 
+/**
+ * Read the contents of a file into a string.
+ * @param filename The name of the file to read.
+ * @return The contents of the file as a string.
+ */
 auto ReadFile(const std::string &filename) -> std::string {
   std::ifstream file(filename);
   if (!file.is_open()) {
@@ -75,6 +89,15 @@ auto ReadFile(const std::string &filename) -> std::string {
   return content;
 }
 
+/**
+ * Parses the input using the LL(1) parsing algorithm.
+ * Handles epsilon productions, error recovery, and proper stack management.
+ *
+ * @param input The input string to parse.
+ * @param source_description A description of the source (for error messages).
+ * @param program_name The name of the program (for error messages).
+ * @return True if parsing was successful, false otherwise.
+ */
 auto ParseInput(const std::string &input, const std::string &source_description, const std::string &program_name)
     -> bool {
   scp::parser::LL1Parser parser(program_name);
@@ -99,6 +122,12 @@ auto ParseInput(const std::string &input, const std::string &source_description,
   return false;
 }
 
+/**
+ * Main entry point for the parser program.
+ * @param argc The number of command line arguments.
+ * @param argv The command line arguments.
+ * @return Exit status code.
+ */
 auto main(int argc, char *argv[]) -> int {
   if (argc < 2) {
     PrintUsage(argv[0]);

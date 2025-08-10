@@ -11,7 +11,15 @@
 
 namespace scp::lexer {
 
+/**
+ * Hash function for a vector of integers.
+ */
 struct VectorHash {
+  /**
+   * Hash a vector of integers.
+   * @param v The vector to hash.
+   * @return A size_t representing the hash value.
+   */
   auto operator()(const std::vector<int> &v) const noexcept -> std::size_t {
     std::size_t hash = 0;
     for (int num : v) {
@@ -21,10 +29,24 @@ struct VectorHash {
   }
 };
 
+/**
+ * Equality comparison for vectors of integers.
+ */
 struct VectorEqual {
+  /**
+   * Compare two vectors of integers for equality.
+   * @param a The first vector.
+   * @param b The second vector.
+   * @return True if the vectors are equal, false otherwise.
+   */
   auto operator()(const std::vector<int> &a, const std::vector<int> &b) const noexcept -> bool { return a == b; }
 };
 
+/**
+ * Compress a 2D vector by pooling identical rows.
+ * @param input The input 2D vector.
+ * @return A vector of shared pointers to the unique rows.
+ */
 auto Compress(std::vector<std::vector<int>> input) -> std::vector<std::shared_ptr<std::vector<int>>> {
   using RowPtr = std::shared_ptr<std::vector<int>>;
   std::unordered_map<std::vector<int>, RowPtr, VectorHash, VectorEqual> row_pool;

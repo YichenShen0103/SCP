@@ -3,7 +3,7 @@
 namespace scp::constant {
 
 /**
- * Configuration constants for the lexer
+ * Alphabet constant class for the lexer
  */
 class Alphabet {
  public:

@@ -26,4 +26,5 @@ auto ToString(TokenType type) -> const char * {
       return "";
   }
 }
+
 }  // namespace scp::core
