@@ -1,0 +1,6 @@
+Type: ROOT, Value: '-'
+  Type: ASSIGN, Value: '<-'
+    Type: IDENTIFIER, Value: 'a'
+    Type: PLUS, Value: '+'
+      Type: NUMBER, Value: '1'
+      Type: NUMBER, Value: '2'

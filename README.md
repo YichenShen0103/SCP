@@ -16,4 +16,5 @@ Using a deterministic finite automata to implement regular expression match. Cal
 ### Parsing
 
 We support several implement:
-1. LL(1) Parsing (currently building...)
+1. LL(1) Parsing
+2. (Waiting...)

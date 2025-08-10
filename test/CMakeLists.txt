@@ -23,7 +23,9 @@ endfunction()
 # Create test executables
 create_gtest_executable(dfa_test "dfa_test.cpp")
 create_gtest_executable(lexer_test "lexer_test.cpp")
+create_gtest_executable(parser_test "parser_test.cpp")
 
 # Add tests to CTest
 add_test(NAME dfa_test COMMAND dfa_test)
 add_test(NAME lexer_test COMMAND lexer_test)
+add_test(NAME parser_test COMMAND parser_test)

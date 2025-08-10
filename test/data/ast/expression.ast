@@ -1,0 +1,8 @@
+Type: ROOT, Value: '-'
+  Type: ASSIGN, Value: '<-'
+    Type: IDENTIFIER, Value: 'result'
+    Type: TIMES, Value: '*'
+      Type: PLUS, Value: '+'
+        Type: IDENTIFIER, Value: 'variable1'
+        Type: IDENTIFIER, Value: 'variable2'
+      Type: IDENTIFIER, Value: 'factor'

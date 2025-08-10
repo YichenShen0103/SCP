@@ -52,7 +52,7 @@ class DFATest : public ::testing::Test {
 
   // Helper function to read file content
   auto ReadTestFile(const std::string &filename) -> std::string {
-    std::ifstream file("test/data/" + filename);
+    std::ifstream file("/Users/shenyc/code/compiler/test/data/code" + filename);
     if (!file.is_open()) {
       return "";
     }

@@ -5,16 +5,7 @@
 
 namespace scp::core {
 
-enum class TokenType {
-  IDENTIFIER,
-  NUMBER,
-  PLUS,
-  TIMES,
-  LEFT_PAREN,
-  RIGHT_PAREN,
-  ASSIGN,
-  SEMICOLON,
-};
+enum class TokenType { IDENTIFIER, NUMBER, PLUS, TIMES, LEFT_PAREN, RIGHT_PAREN, ASSIGN, SEMICOLON, END_OF_FILE };
 
 auto ToString(TokenType type) -> const char *;
 

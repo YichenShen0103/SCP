@@ -20,6 +20,8 @@ auto ToString(TokenType type) -> const char * {
       return "ASSIGN";
     case TokenType::SEMICOLON:
       return "SEMICOLON";
+    case TokenType::END_OF_FILE:
+      return "EOF";
     default:
       return "";
   }

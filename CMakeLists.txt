@@ -35,14 +35,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 add_subdirectory(src/core)
 add_subdirectory(src/lexer)
 add_subdirectory(src/parser)
-add_subdirectory(src/tools)
+add_subdirectory(src/)
 
 # Enable testing and add test subdirectory
 enable_testing()
 add_subdirectory(test)
 
 # Installation rules
-install(TARGETS lexer
+install(TARGETS lexer parser
     RUNTIME DESTINATION bin
 )
 
@@ -135,7 +135,7 @@ add_custom_target(check-lint
     ${CPPLINT_BIN}
     --verbose=2 --quiet
     --linelength=120
-    --filter=-legal/copyright,-build/header_guard,-runtime/references
+    --filter=-legal/copyright,-build/header_guard,-runtime/references,-whitespace/indent_namespace
 )
 
 # Static analysis target
