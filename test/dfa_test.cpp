@@ -2,7 +2,6 @@
 #include <fstream>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "core/token.h"
 #include "lexer/dfa.h"

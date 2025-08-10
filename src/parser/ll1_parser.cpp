@@ -194,7 +194,7 @@ auto LL1Parser::Parse() -> std::shared_ptr<core::AST> {
   }
 
   // Check if parsing completed successfully
-  if (parse_stack_.empty() || parse_stack_.top().first != "$") {
+  if (parse_stack_.empty() || parse_stack_.top().first != constant::ASTConstant::END_NODE_VALUE) {
     std::cerr << constant::ErrorMessages::UNEXPECTED_END_OF_PARSING;
     if (parse_stack_.empty()) {
       std::cerr << "empty";
@@ -255,8 +255,8 @@ void LL1Parser::PrintParsingStack() const {
 }
 
 auto LL1Parser::IsValidSymbol(const std::string &symbol) const -> bool {
-  return symbols_.find(symbol) != symbols_.end() || terminals_.find(symbol) != terminals_.end() || symbol == "$" ||
-         symbol == "ε" || symbol == "epsilon";
+  return symbols_.find(symbol) != symbols_.end() || terminals_.find(symbol) != terminals_.end() ||
+         symbol == constant::ASTConstant::END_NODE_VALUE || symbol == "ε" || symbol == "epsilon";
 }
 
 void LL1Parser::SetInput(const std::string &input) { lexer_.SetInput(input); }
@@ -276,7 +276,7 @@ auto LL1Parser::BuildAST(const std::shared_ptr<core::TreeNode> &parse_tree) -> s
     return nullptr;
   }
 
-  auto ast = std::make_shared<core::AST>("Program");
+  auto ast = std::make_shared<core::AST>(program_name_);
   auto root_node = TransformToASTNode(parse_tree);
   ast->SetRoot(root_node);
 

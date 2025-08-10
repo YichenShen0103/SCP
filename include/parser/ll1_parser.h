@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "core/ast.h"
@@ -14,7 +15,7 @@ namespace scp::parser {
 
 class LL1Parser {
  public:
-  explicit LL1Parser() { Init(); }
+  explicit LL1Parser(std::string program_name) : program_name_(std::move(program_name)) { Init(); }
   ~LL1Parser() = default;
 
   void Init();
@@ -29,6 +30,7 @@ class LL1Parser {
   auto BuildAST(const std::shared_ptr<core::TreeNode> &parse_tree) -> std::shared_ptr<core::AST>;
 
  private:
+  std::string program_name_;
   std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> parse_table_;
   std::unordered_set<std::string> terminals_;
   std::unordered_set<std::string> symbols_;

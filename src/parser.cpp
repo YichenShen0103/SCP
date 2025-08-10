@@ -75,8 +75,9 @@ auto ReadFile(const std::string &filename) -> std::string {
   return content;
 }
 
-auto ParseInput(const std::string &input, const std::string &source_description) -> bool {
-  scp::parser::LL1Parser parser;
+auto ParseInput(const std::string &input, const std::string &source_description, const std::string &program_name)
+    -> bool {
+  scp::parser::LL1Parser parser(program_name);
   parser.SetInput(input);
 
   std::cout << "=== Parsing " << source_description << " ===" << std::endl;
@@ -114,7 +115,7 @@ auto main(int argc, char *argv[]) -> int {
   if (option == "-s" && argc == 3) {
     // Parse string input
     std::string input = argv[2];
-    bool success = ParseInput(input, "string input");
+    bool success = ParseInput(input, "string input", "temporary");
     return success ? 0 : 1;
   }
 
@@ -125,7 +126,7 @@ auto main(int argc, char *argv[]) -> int {
     if (input.empty()) {
       return 1;
     }
-    bool success = ParseInput(input, "file '" + filename + "'");
+    bool success = ParseInput(input, "file '" + filename + "'", filename);
     return success ? 0 : 1;
   }
 

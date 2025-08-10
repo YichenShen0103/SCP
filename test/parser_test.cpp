@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <vector>
 
@@ -12,7 +11,7 @@ namespace scp::test {
 
 class ParserTest : public ::testing::Test {
  protected:
-  void SetUp() override { parser_ = std::make_unique<parser::LL1Parser>(); }
+  void SetUp() override { parser_ = std::make_unique<parser::LL1Parser>("ParserTest"); }
 
   std::unique_ptr<parser::LL1Parser> parser_;
 

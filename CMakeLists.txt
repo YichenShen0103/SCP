@@ -56,18 +56,6 @@ install(DIRECTORY include/
     FILES_MATCHING PATTERN "*.h"
 )
 
-# Custom targets for convenience
-add_custom_target(clean-all
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target clean
-    COMMENT "Cleaning all build files"
-)
-
-add_custom_target(run-tests
-    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    DEPENDS dfa_test lexer_test
-    COMMENT "Running all tests"
-)
-
 # Development tools configuration
 # This file contains targets for code formatting, linting, and static analysis
 
