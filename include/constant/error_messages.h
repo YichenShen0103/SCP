@@ -74,6 +74,24 @@ class ErrorMessages {
       -> std::string {
     return "Parser: No production rule for non-terminal '" + current_symbol + "' with token '" + token_string + "'";
   }
+
+  /**
+   * Generate an error message for a missing action for a specific token.
+   * @param token The token for which no action was found.
+   * @return A formatted error message.
+   */
+  static auto NoActionFoundForToken(const std::string &token) -> std::string {
+    return "Parser: No action found for token '" + token + "'";
+  }
+
+  /**
+   * Generate an error message for a missing action in the action table.
+   * @param state The state for which no action was found.
+   * @return A formatted error message.
+   */
+  static auto NoActionFoundForState(int state) -> std::string {
+    return "Parser: No action found for state " + std::to_string(state);
+  }
 };
 
 }  // namespace scp::constant

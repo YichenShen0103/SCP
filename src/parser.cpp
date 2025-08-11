@@ -4,6 +4,7 @@
 #include <string>
 #include "core/ast.h"
 #include "parser/ll1_parser.h"
+#include "parser/slr_parser.h"
 
 /**
  * Print the Abstract Syntax Tree (AST).
@@ -100,7 +101,7 @@ auto ReadFile(const std::string &filename) -> std::string {
  */
 auto ParseInput(const std::string &input, const std::string &source_description, const std::string &program_name)
     -> bool {
-  scp::parser::LL1Parser parser(program_name);
+  scp::parser::SLRParser parser(program_name);
   parser.SetInput(input);
 
   std::cout << "=== Parsing " << source_description << " ===" << std::endl;

@@ -7,6 +7,7 @@ add_library(scp_parser STATIC)
 # Add source files
 target_sources(scp_parser PRIVATE
     ll1_parser.cpp
+    slr_parser.cpp
 )
 
 # Set include directories

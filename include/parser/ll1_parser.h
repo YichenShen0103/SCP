@@ -22,7 +22,7 @@ class LL1Parser {
    * Constructor for the LL1Parser.
    * @param program_name The name of the program being parsed.
    */
-  explicit LL1Parser(std::string program_name) : program_name_(std::move(program_name)) { Init(); }
+  explicit LL1Parser(std::string program_name) : program_name_(std::move(program_name)), lexer_() { Init(); }
 
   /**
    * Destructor for the LL1Parser.

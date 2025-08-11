@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <chrono>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -9,9 +10,9 @@
 
 namespace scp::test {
 
-class ParserTest : public ::testing::Test {
+class LL1ParserTest : public ::testing::Test {
  protected:
-  void SetUp() override { parser_ = std::make_unique<parser::LL1Parser>("ParserTest"); }
+  void SetUp() override { parser_ = std::make_unique<parser::LL1Parser>("LL1ParserTest"); }
 
   std::unique_ptr<parser::LL1Parser> parser_;
 
@@ -107,28 +108,28 @@ class ParserTest : public ::testing::Test {
 };
 
 // Test simple addition parsing
-TEST_F(ParserTest, SimpleAddition) { VerifyAST("simple_addition.scpl", "simple_addition.ast"); }
+TEST_F(LL1ParserTest, SimpleAddition) { VerifyAST("simple_addition.scpl", "simple_addition.ast"); }
 
 // Test complex expression with parentheses and multiple operators
-TEST_F(ParserTest, ComplexExpression) { VerifyAST("expression.scpl", "expression.ast"); }
+TEST_F(LL1ParserTest, ComplexExpression) { VerifyAST("expression.scpl", "expression.ast"); }
 
 // Test multiple statements
-TEST_F(ParserTest, MultipleStatements) { VerifyAST("multiple_statements.scpl", "multiple_statements.ast"); }
+TEST_F(LL1ParserTest, MultipleStatements) { VerifyAST("multiple_statements.scpl", "multiple_statements.ast"); }
 
 // Test operator precedence (multiplication has higher precedence than addition)
-TEST_F(ParserTest, OperatorPrecedence) { VerifyAST("operator_precedence.scpl", "operator_precedence.ast"); }
+TEST_F(LL1ParserTest, OperatorPrecedence) { VerifyAST("operator_precedence.scpl", "operator_precedence.ast"); }
 
 // Test parentheses overriding operator precedence
-TEST_F(ParserTest, ParenthesesPrecedence) { VerifyAST("parentheses.scpl", "parentheses.ast"); }
+TEST_F(LL1ParserTest, ParenthesesPrecedence) { VerifyAST("parentheses.scpl", "parentheses.ast"); }
 
 // Test left associativity
-TEST_F(ParserTest, LeftAssociativity) { VerifyAST("left_associative.scpl", "left_associative.ast"); }
+TEST_F(LL1ParserTest, LeftAssociativity) { VerifyAST("left_associative.scpl", "left_associative.ast"); }
 
 // Test complex real-world code
-TEST_F(ParserTest, RealWorldCode) { VerifyAST("real_code.scpl", "real_code.ast"); }
+TEST_F(LL1ParserTest, RealWorldCode) { VerifyAST("real_code.scpl", "real_code.ast"); }
 
 // Test empty input handling
-TEST_F(ParserTest, EmptyInput) {
+TEST_F(LL1ParserTest, EmptyInput) {
   std::string input = ReadTestFile("empty.scpl");
   auto ast = ParseInput(input);
   // For empty input, parsing should either fail gracefully or return an empty AST
@@ -137,7 +138,7 @@ TEST_F(ParserTest, EmptyInput) {
 }
 
 // Test basic AST node creation and structure
-TEST_F(ParserTest, ASTNodeStructure) {
+TEST_F(LL1ParserTest, ASTNodeStructure) {
   std::string input = "x <- 42;";
   auto ast = ParseInput(input);
   ASSERT_TRUE(ast != nullptr);
@@ -169,7 +170,7 @@ TEST_F(ParserTest, ASTNodeStructure) {
 }
 
 // Test expression tree structure
-TEST_F(ParserTest, ExpressionTreeStructure) {
+TEST_F(LL1ParserTest, ExpressionTreeStructure) {
   std::string input = "result <- a + b * c;";
   auto ast = ParseInput(input);
   ASSERT_TRUE(ast != nullptr);
@@ -219,7 +220,7 @@ TEST_F(ParserTest, ExpressionTreeStructure) {
 }
 
 // Test invalid input handling
-TEST_F(ParserTest, InvalidInputHandling) {
+TEST_F(LL1ParserTest, InvalidInputHandling) {
   // Test various invalid inputs
   // Note: The parser might still return an AST object even for invalid inputs,
   // but the parsing should fail (indicated by error messages)
@@ -260,7 +261,7 @@ TEST_F(ParserTest, InvalidInputHandling) {
 }
 
 // Test AST node types and values
-TEST_F(ParserTest, ASTNodeTypes) {
+TEST_F(LL1ParserTest, ASTNodeTypes) {
   // Test all possible AST node types
   std::string input = "test <- num1 + num2 * num3;";
   auto ast = ParseInput(input);
@@ -291,7 +292,7 @@ TEST_F(ParserTest, ASTNodeTypes) {
 }
 
 // Test nested parentheses
-TEST_F(ParserTest, NestedParentheses) {
+TEST_F(LL1ParserTest, NestedParentheses) {
   std::string input = "result <- ((a + b) * c);";
   auto ast = ParseInput(input);
   ASSERT_TRUE(ast != nullptr);
@@ -322,7 +323,7 @@ TEST_F(ParserTest, NestedParentheses) {
 }
 
 // Test single assignment
-TEST_F(ParserTest, SingleAssignment) {
+TEST_F(LL1ParserTest, SingleAssignment) {
   std::string input = "x <- 1;";
   auto ast = ParseInput(input);
   ASSERT_TRUE(ast != nullptr);
@@ -346,6 +347,21 @@ TEST_F(ParserTest, SingleAssignment) {
   EXPECT_EQ(identifier->GetValue(), "x");
   EXPECT_EQ(number->GetType(), core::ASTNodeType::NUMBER);
   EXPECT_EQ(number->GetValue(), "1");
+}
+
+// Performance test for heavy_test.scpl
+TEST_F(LL1ParserTest, PerformanceTest) {
+  std::string input = ReadTestFile("heavy_test.scpl");
+  ASSERT_FALSE(input.empty()) << "Failed to read heavy_test.scpl";
+
+  auto start_time = std::chrono::high_resolution_clock::now();
+  auto ast = ParseInput(input);
+  auto end_time = std::chrono::high_resolution_clock::now();
+
+  ASSERT_TRUE(ast != nullptr) << "Parsing failed for heavy_test.scpl";
+
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+  std::cout << "LL1 Parser Performance: Parsed heavy_test.scpl in " << duration.count() << " milliseconds" << std::endl;
 }
 
 }  // namespace scp::test

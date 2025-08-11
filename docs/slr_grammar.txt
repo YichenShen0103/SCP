@@ -1,0 +1,37 @@
+Terminals:
+    identifier, number, plus (+), times (*), assign (<-), left_paren ((), right_paren ()), semicolon (;)
+
+Non-terminals:
+    Program, StatementList, Statement, Expression, Term, Factor
+
+Start symbol:
+    Program
+
+Productions:
+    Program -> StatementList
+    StatementList -> Statement StatementList
+                | ε
+    Statement -> identifier assign Expression semicolon
+    Expression -> Expression plus Term
+                | Term
+    Term -> Term times Factor
+        | Factor
+    Factor -> identifier
+            | number
+            | left_paren Expression right_paren
+
+FIRST sets:
+FIRST(Program)      = { id, ε }
+FIRST(StatementList)= { id, ε }
+FIRST(Statement)    = { id }
+FIRST(Expression)   = { id, num, ( }
+FIRST(Term)         = { id, num, ( }
+FIRST(Factor)       = { id, num, ( }
+
+FOLLOW sets:
+FOLLOW(Program)       = { $ }
+FOLLOW(StatementList) = { $ }
+FOLLOW(Statement)     = { id, $ }
+FOLLOW(Expression)    = { ;, ), + }
+FOLLOW(Term)          = { ;, ), +, * }
+FOLLOW(Factor)        = { ;, ), +, * }

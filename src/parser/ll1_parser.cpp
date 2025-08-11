@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "constant/AST_constant.h"
+#include "constant/ast_constant.h"
 #include "constant/error_messages.h"
 #include "core/ast.h"
 #include "core/token.h"
@@ -71,7 +71,7 @@ auto Term(const core::Token &token, const std::string &symbol) -> bool {
 
 // LL1Parser Implementation
 void LL1Parser::Init() {
-  symbols_ = {"Program", "StatementList", "Statement", "Expression", "Term", "Factor"};
+  symbols_ = {"Program", "StatementList", "Statement", "Expression", "Term", "Factor", "Expression'", "Term'"};
   terminals_ = {"identifier", "number", "left_paren", "right_paren", "plus", "times", "assign", "semicolon", "$"};
   symbols_.insert(terminals_.begin(), terminals_.end());
   parse_table_ = {
