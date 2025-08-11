@@ -17,4 +17,6 @@ Using a deterministic finite automata to implement regular expression match. Cal
 
 We support several implement:
 1. LL(1) Parsing
-2. (Waiting...)
+2. SLR Parsing
+
+Generate a pointer to the Abstract Syntax Tree for following processing.

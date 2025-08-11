@@ -13,8 +13,8 @@
 namespace scp::test {
 
 struct ExpectedToken {
-  core::TokenType type;
-  std::string value;
+  core::TokenType type_;
+  std::string value_;
 };
 
 class LexerTest : public ::testing::Test {
@@ -103,9 +103,9 @@ class LexerTest : public ::testing::Test {
     ASSERT_EQ(actual_tokens.size(), expected_tokens.size()) << "Token count mismatch for " << code_filename;
 
     for (size_t i = 0; i < actual_tokens.size(); ++i) {
-      EXPECT_EQ(actual_tokens[i].GetType(), expected_tokens[i].type)
+      EXPECT_EQ(actual_tokens[i].GetType(), expected_tokens[i].type_)
           << "Token " << (i + 1) << " type mismatch in " << code_filename;
-      EXPECT_EQ(actual_tokens[i].GetValue(), expected_tokens[i].value)
+      EXPECT_EQ(actual_tokens[i].GetValue(), expected_tokens[i].value_)
           << "Token " << (i + 1) << " value mismatch in " << code_filename;
     }
   }
@@ -162,7 +162,7 @@ TEST_F(LexerTest, InvalidTokenHandling) {
     EXPECT_GT(tokens.size(), 0) << "Should parse some valid tokens before errors";
 
     // Check for specific expected tokens that should be parsed successfully
-    if (tokens.size() >= 1) {
+    if (!tokens.empty()) {
       VerifyToken(tokens[0], core::TokenType::NUMBER, "123");
     }
     if (tokens.size() >= 2) {

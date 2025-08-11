@@ -2,8 +2,10 @@
 
 #include <memory>
 #include <stack>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "core/ast.h"
@@ -25,7 +27,7 @@ class SLRParser {
     /**
      * Default constructor for Action.
      */
-    Action() : type_(ActionType::REJECT), state_(0), rhs_(), lhs_() {}
+    Action() : type_(ActionType::REJECT), state_(0) {}
 
     /**
      * Constructs a new Action.
@@ -34,7 +36,7 @@ class SLRParser {
      * @param rhs The right-hand side symbols to reduce, reserve for REDUCE.
      * @param lhs The left-hand side symbol to reduce to, reserve for REDUCE.
      */
-    Action(ActionType type, int state = 0, std::vector<std::string> rhs = {}, std::string lhs = {})
+    explicit Action(ActionType type, int state = 0, std::vector<std::string> rhs = {}, std::string lhs = {})
         : type_(type), state_(state), rhs_(std::move(rhs)), lhs_(std::move(lhs)) {}
 
     /* The type of action to be taken. */
@@ -51,7 +53,7 @@ class SLRParser {
    * Constructor for the SLRParser.
    * @param program_name The name of the program being parsed.
    */
-  explicit SLRParser(std::string program_name) : program_name_(std::move(program_name)), lexer_() { Init(); }
+  explicit SLRParser(std::string program_name) : program_name_(std::move(program_name)) { Init(); }
 
   /**
    * Destructor for the SLRParser.

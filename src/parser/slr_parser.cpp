@@ -3,6 +3,10 @@
 #include <cctype>
 #include <iostream>
 #include <memory>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "constant/ast_constant.h"
 #include "constant/error_messages.h"
@@ -258,7 +262,8 @@ auto SLRParser::Parse() -> std::shared_ptr<core::AST> {
         // The Program node should be on top of the stack
         auto program_node = std::get<1>(slr_stack_.top());
         return BuildAST(program_node);
-      } else if (action_to_take.type_ == Action::ActionType::REDUCE) {
+      }
+      if (action_to_take.type_ == Action::ActionType::REDUCE) {
         auto reduce_node = std::make_shared<core::TreeNode>(action_to_take.lhs_);
         std::vector<std::shared_ptr<core::TreeNode>> child_nodes;
         for (size_t i = 0; i < action_to_take.rhs_.size(); ++i) {
@@ -491,7 +496,8 @@ auto SLRParser::TransformExpression(const std::shared_ptr<core::TreeNode> &parse
     // Expression -> Term
     auto term_node = parse_node->children_.front();
     return TransformToASTNode(term_node);
-  } else if (parse_node->children_.size() == 3) {
+  }
+  if (parse_node->children_.size() == 3) {
     // Expression -> Expression plus Term
     // But children are in reverse order: Term, plus, Expression
     auto it = parse_node->children_.begin();
@@ -521,7 +527,8 @@ auto SLRParser::TransformTerm(const std::shared_ptr<core::TreeNode> &parse_node)
     // Term -> Factor
     auto factor_node = parse_node->children_.front();
     return TransformToASTNode(factor_node);
-  } else if (parse_node->children_.size() == 3) {
+  }
+  if (parse_node->children_.size() == 3) {
     // Term -> Term times Factor
     // But children are in reverse order: Factor, times, Term
     auto it = parse_node->children_.begin();
