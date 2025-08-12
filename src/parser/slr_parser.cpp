@@ -23,29 +23,7 @@ void SLRParser::Init() {
   symbols_.insert(terminals_.begin(), terminals_.end());
   slr_stack_ = {};
   slr_stack_.push({constant::ASTConstant::ROOT_NODE_VALUE, nullptr, 0});
-  /*
-   * Terminals:
-   *    identifier, number, plus (+), times (*), assign (<-), left_paren ((), right_paren ()), semicolon (;)
-   *
-   * Non-terminals:
-   *    Program, StatementList, Statement, Expression, Term, Factor
-   *
-   * Start symbol:
-   *    Program
-   *
-   * Productions:
-   *    Program -> StatementList
-   *    StatementList -> Statement StatementList
-   *                | ε
-   *    Statement -> identifier assign Expression semicolon
-   *    Expression -> Expression plus Term
-   *                | Term
-   *    Term -> Term times Factor
-   *        | Factor
-   *    Factor -> identifier
-   *        | number
-   *        | left_paren Expression right_paren
-   */
+
   // Build goto table - state transitions for non-terminals
   goto_table_[0]["Program"] = 1;
   goto_table_[0]["StatementList"] = 2;
