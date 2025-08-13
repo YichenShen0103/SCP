@@ -120,6 +120,9 @@ void LL1Parser::Init() {
 }
 
 auto LL1Parser::Parse() -> std::shared_ptr<core::AST> {
+  lexer_.Reset();
+  // Reset parser stack to initial state
+  parse_stack_ = {};
   // Initialize parse tree root
   std::shared_ptr<core::TreeNode> parse_root =
       std::make_shared<core::TreeNode>(constant::ASTConstant::ROOT_NODE_VALUE);  // Use "-" as root value

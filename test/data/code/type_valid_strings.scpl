@@ -1,0 +1,5 @@
+greeting <- "hello";
+name <- "world";
+message <- greeting + name;
+repeated <- "abc" * 3;
+complex <- ("prefix" + "middle") + "suffix";

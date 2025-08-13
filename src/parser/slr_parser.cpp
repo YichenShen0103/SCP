@@ -169,6 +169,9 @@ void SLRParser::Init() {
 
 auto SLRParser::Parse() -> std::shared_ptr<core::AST> {
   lexer_.Reset();
+  // Reset parser stack to initial state
+  slr_stack_ = {};
+  slr_stack_.push({constant::ASTConstant::ROOT_NODE_VALUE, nullptr, 0});
   auto root_node = std::make_shared<core::TreeNode>(constant::ASTConstant::ROOT_NODE_VALUE);
   while (true) {
     if (lexer_.HasNext()) {

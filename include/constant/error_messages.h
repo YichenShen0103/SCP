@@ -23,6 +23,9 @@ class ErrorMessages {
   static constexpr const char *UNEXPECTED_END_OF_PARSING = "Parser: Unexpected end of parsing. Stack state: ";
   static constexpr const char *INPUT_NOT_FULLY_CONSUMED = "Parser: Input not fully consumed. Remaining tokens exist.";
 
+  // Semantic analysis error messages
+  static constexpr const char *TYPE_CHECK_FAILED = "Type checker: Type check failed.";
+
   /**
    * Generate an error message for a symbol not in the alphabet with its ASCII value.
    * @param symbol The symbol that is not in the alphabet.
@@ -92,6 +95,55 @@ class ErrorMessages {
   static auto NoActionFoundForState(int state) -> std::string {
     return "Parser: No action found for state " + std::to_string(state);
   }
+
+  /**
+   * Generate an error message for a type mismatch of add.
+   * @param type1 The first type.
+   * @param type2 The second type.
+   * @return A formatted error message.
+   */
+  static auto TypeCannotAdd(const std::string &type1, const std::string &type2) -> std::string {
+    return "Type checker: cannot add" + type1 + " and " + type2 + ".";
+  }
+
+  /**
+   * Generate an error message for a type mismatch of time.
+   * @param type1 The first type.
+   * @param type2 The second type.
+   * @return A formatted error message.
+   */
+  static auto TypeCannotTime(const std::string &type1, const std::string &type2) -> std::string {
+    return "Type checker: cannot time" + type1 + " and " + type2 + ".";
+  }
+
+  /**
+   * Generate an error message for a type mismatch of assignment.
+   * @param variable The variable name.
+   * @param type1 The type of variable.
+   * @param type2 The type of expression.
+   * @return A formatted error message.
+   */
+  static auto TypeCannotAssign(const std::string &variable, const std::string &type1, const std::string &type2)
+      -> std::string {
+    return "Type checker: cannot assign variable '" + variable + "' of type " + type1 + " to expression of type " +
+           type2 + ".";
+  }
+
+  /**
+   * Generate an error message for using a variable before its declaration.
+   * @param variable The variable name.
+   * @return A formatted error message.
+   */
+  static auto UseVariableBeforeDeclaration(const std::string &variable) -> std::string {
+    return "Type checker: variable '" + variable + "' used before declaration.";
+  }
+
+  /**
+   * Generate an panic message
+   * @param reason The reason for the panic.
+   * @return A formatted panic message.
+   */
+  static auto Panic(const std::string &reason) -> std::string { return "Panic: " + reason + "."; }
 };
 
 }  // namespace scp::constant

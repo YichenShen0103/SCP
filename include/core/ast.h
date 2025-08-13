@@ -5,6 +5,8 @@
 #include <string>
 #include <utility>
 
+#include "core/type.h"
+
 namespace scp::core {
 
 /**
@@ -92,6 +94,13 @@ class AST {
      * @return The children of the node.
      */
     auto GetChildren() const -> const std::list<std::shared_ptr<ASTNode>> & { return children_; }
+
+    /**
+     * Check type of the AST node.
+     * @param environment The current type environment.
+     * @return Type of the AST node.
+     */
+    auto TypeCheck(const std::shared_ptr<TypeEnvironment> &environment, bool &has_bug) const -> Type;
 
    private:
     /* The value of the AST node */

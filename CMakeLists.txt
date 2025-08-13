@@ -34,10 +34,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 # Add subdirectories for each module Note: Order matters due to dependencies
-# (constant -> core -> lexer -> parser)
+# (constant -> core -> lexer -> parser -> semant)
 add_subdirectory(src/core)
 add_subdirectory(src/lexer)
 add_subdirectory(src/parser)
+add_subdirectory(src/semant)
 add_subdirectory(src/)
 
 # Enable testing and add test subdirectory
@@ -48,7 +49,7 @@ add_subdirectory(test)
 install(TARGETS lexer parser RUNTIME DESTINATION bin)
 
 install(
-  TARGETS scp_core scp_lexer scp_parser
+  TARGETS scp_core scp_lexer scp_parser scp_semant
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
 

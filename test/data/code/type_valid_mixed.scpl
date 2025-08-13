@@ -1,0 +1,4 @@
+text <- "hello";
+count <- 5;
+result1 <- text * count;
+result2 <- 3 * "world";

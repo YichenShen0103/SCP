@@ -7,7 +7,8 @@ add_library(scp_core STATIC)
 # Add source files
 target_sources(scp_core PRIVATE
     token.cpp
-        symbol_table.cpp
+    ast.cpp
+    type.cpp
 )
 
 # Set include directories
