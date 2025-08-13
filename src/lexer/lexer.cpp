@@ -145,10 +145,12 @@ void Lexer::SetupStringDFA() {
 void Lexer::SetInput(const std::string &input) {
   input_ = input;
   current_pos_ = 0;
+  current_line_ = 1;
+  current_column_ = 1;
 }
 
 auto Lexer::Next() -> std::optional<core::Token> {
-  core::Token token(core::TokenType::IDENTIFIER, "");  // dummy initialization
+  core::Token token(core::TokenType::IDENTIFIER, "", 0, 0);  // dummy initialization
   if (GetNextToken(token)) {
     return token;
   }
@@ -165,11 +167,21 @@ auto Lexer::HasNext() const -> bool {
   return pos < input_.size();
 }
 
-void Lexer::Reset() { current_pos_ = 0; }
+void Lexer::Reset() {
+  current_pos_ = 0;
+  current_line_ = 1;
+  current_column_ = 1;
+}
 
 void Lexer::SkipWhitespace() {
   while (current_pos_ < input_.size() && (input_[current_pos_] == ' ' || input_[current_pos_] == '\t' ||
                                           input_[current_pos_] == '\n' || input_[current_pos_] == '\r')) {
+    if (input_[current_pos_] == '\n') {
+      current_line_++;
+      current_column_ = 1;
+    } else {
+      current_column_++;
+    }
     ++current_pos_;
   }
 }
@@ -183,6 +195,8 @@ auto Lexer::GetNextToken(core::Token &token) -> bool {
   }
 
   size_t token_start = current_pos_;
+  int token_start_line = current_line_;
+  int token_start_column = current_column_;
 
   // Reset DFAs for next token
   for (size_t i = 0; i < dfa_list_.size(); ++i) {
@@ -220,6 +234,14 @@ auto Lexer::GetNextToken(core::Token &token) -> bool {
       }
     }
 
+    // Update position tracking
+    if (input_[current_pos_] == '\n') {
+      current_line_++;
+      current_column_ = 1;
+    } else {
+      current_column_++;
+    }
+
     ++current_pos_;
   }
 
@@ -228,14 +250,21 @@ auto Lexer::GetNextToken(core::Token &token) -> bool {
     std::string token_value = input_.substr(token_start, last_accepted_pos - token_start);
     core::TokenType token_type = dfa_list_[last_accepted_dfa]->GetTokenClassRaw();
 
-    token = core::Token(token_type, token_value);
+    token = core::Token(token_type, token_value, token_start_line, token_start_column);
 
     // Set current_pos_ to the position after the accepted token
     current_pos_ = last_accepted_pos;
     return true;
   }
   // Skip the problematic character
-  std::cerr << constant::ErrorMessages::NoValidTokenFoundWithDetails(input_[token_start], token_start) << std::endl;
+  std::cerr << "Lexer: No valid token found at line " << current_line_ << ", column " << current_column_
+            << " for character '" << input_[token_start] << "'" << std::endl;
+  if (input_[current_pos_] == '\n') {
+    current_line_++;
+    current_column_ = 1;
+  } else {
+    current_column_++;
+  }
   ++current_pos_;
   return false;
 }

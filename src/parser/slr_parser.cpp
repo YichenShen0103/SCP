@@ -238,7 +238,7 @@ auto SLRParser::Parse() -> std::shared_ptr<core::AST> {
 
       auto state_action_it = action_table_.find(current_state);
       if (state_action_it == action_table_.end()) {
-        std::cerr << constant::ErrorMessages::ParsingError("$", core::Token(core::TokenType::END_OF_FILE, "$"))
+        std::cerr << constant::ErrorMessages::ParsingError("$", core::Token(core::TokenType::END_OF_FILE, "$", 0, 0))
                   << std::endl;
         return nullptr;
       }
@@ -278,7 +278,7 @@ auto SLRParser::Parse() -> std::shared_ptr<core::AST> {
         slr_stack_.push({action_to_take.lhs_, reduce_node, new_state});
         // Continue processing EOF with the new state
       } else {
-        std::cerr << constant::ErrorMessages::ParsingError("$", core::Token(core::TokenType::END_OF_FILE, "$"))
+        std::cerr << constant::ErrorMessages::ParsingError("$", core::Token(core::TokenType::END_OF_FILE, "$", 0, 0))
                   << std::endl;
         return nullptr;
       }

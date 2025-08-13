@@ -55,7 +55,8 @@ class ErrorMessages {
    */
   static auto ParsingError(const std::string &current_symbol, const core::Token &current_token) -> std::string {
     return "Parser: Expected '" + current_symbol + "' but found '" + current_token.GetValue() +
-           "' (type: " + ToString(current_token.GetType()) + ")";
+           "' (type: " + ToString(current_token.GetType()) + ") at line " + std::to_string(current_token.GetLine()) +
+           ", column " + std::to_string(current_token.GetColumn());
   }
 
   /**

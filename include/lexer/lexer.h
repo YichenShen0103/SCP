@@ -61,6 +61,10 @@ class Lexer {
   std::string input_;
   /* The current position in the input string */
   size_t current_pos_{0};
+  /* Current line number (1-based) */
+  int current_line_{1};
+  /* Current column number (1-based) */
+  int current_column_{1};
 
   /* DFA for all tokens */
   std::unique_ptr<DeterministicFiniteAutomata> number_dfa_;

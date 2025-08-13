@@ -131,7 +131,7 @@ auto LL1Parser::Parse() -> std::shared_ptr<core::AST> {
   parse_stack_.push(std::make_pair("$", std::make_shared<core::TreeNode>(constant::ASTConstant::END_NODE_VALUE)));
   parse_stack_.push(std::make_pair("Program", parse_root));  // Start symbol
 
-  core::Token current_token = core::Token(core::TokenType::IDENTIFIER, "");  // Initialize with empty token
+  core::Token current_token = core::Token(core::TokenType::IDENTIFIER, "", 0, 0);  // Initialize with empty token
   bool token_consumed = true;  // Flag to track if current token needs to be consumed
 
   while (!parse_stack_.empty() && parse_stack_.top().first != constant::ASTConstant::END_NODE_VALUE) {
@@ -139,7 +139,8 @@ auto LL1Parser::Parse() -> std::shared_ptr<core::AST> {
     if (token_consumed) {
       if (!lexer_.HasNext()) {
         // No more tokens, use EOF marker
-        current_token = core::Token(core::TokenType::END_OF_FILE, constant::ASTConstant::END_NODE_VALUE);  // EOF token
+        current_token =
+            core::Token(core::TokenType::END_OF_FILE, constant::ASTConstant::END_NODE_VALUE, 0, 0);  // EOF token
       } else {
         std::optional<core::Token> token_opt = lexer_.Next();
         if (!token_opt.has_value()) {

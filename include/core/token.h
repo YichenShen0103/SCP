@@ -38,7 +38,8 @@ class Token {
    * @param type The type of the token.
    * @param value The value of the token.
    */
-  Token(TokenType type, std::string value) : type_(type), value_(std::move(value)) {}
+  Token(TokenType type, std::string value, int line_pos, int column_pos)
+      : type_(type), value_(std::move(value)), position_({line_pos, column_pos}) {}
 
   /**
    * Destructor for a token.
@@ -57,11 +58,31 @@ class Token {
    */
   auto GetValue() const -> const std::string & { return value_; }
 
+  /**
+   * Get the position of the token in the source code.
+   * @return A pair containing (line, column) position.
+   */
+  auto GetPosition() const -> const std::pair<int, int> & { return position_; }
+
+  /**
+   * Get the line position of the token.
+   * @return The line number (1-based).
+   */
+  auto GetLine() const -> int { return position_.first; }
+
+  /**
+   * Get the column position of the token.
+   * @return The column number (1-based).
+   */
+  auto GetColumn() const -> int { return position_.second; }
+
  private:
   /* The type of the token */
   TokenType type_;
   /* The value of the token */
   std::string value_;
+  /* Position in the source code */
+  std::pair<int, int> position_;
 };
 
 }  // namespace scp::core

@@ -51,7 +51,7 @@ void PrintTokens(const std::vector<scp::core::Token> &tokens) {
   for (size_t i = 0; i < tokens.size(); ++i) {
     const scp::core::Token &token = tokens[i];
     std::cout << "Token " << (i + 1) << ": " << scp::core::ToString(token.GetType()) << " = \"" << token.GetValue()
-              << "\"" << std::endl;
+              << "\" at (" << token.GetLine() << ", " << token.GetColumn() << ")" << std::endl;
   }
 
   std::cout << std::string(50, '-') << std::endl;
