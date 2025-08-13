@@ -29,3 +29,7 @@ assign
 semicolon
   alphabet  ";"
   regular_expression "^[;]$"
+
+string
+  alphabet  "\""
+  regular_expression "^\".*\"$"

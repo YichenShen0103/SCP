@@ -32,6 +32,7 @@ The Parser implements an LL(1) grammar for a simple programming language with th
 ### Terminals
 - `identifier`: Variable names (e.g., `variable1`, `_temp`, `myVar`)
 - `number`: Integer literals (e.g., `123`, `0`, `999`)
+- `string`: String literals (e.g., `"hello"`, `"hello world"`, `"123"`)
 - `plus` (+): Addition operator
 - `times` (*): Multiplication operator
 - `assign` (<-): Assignment operator
@@ -58,7 +59,7 @@ Expression → Term Expression'
 Expression' → plus Term Expression' | ε
 Term → Factor Term'
 Term' → times Factor Term' | ε
-Factor → identifier | number | left_paren Expression right_paren
+Factor → identifier | number | string | left_paren Expression right_paren
 ```
 
 ## Main Features
@@ -162,6 +163,10 @@ scp::parser::LL1Parser parser;
 parser.SetInput("result <- 123 + 456;");
 auto ast = parser.Parse();
 
+// Parse string assignment
+parser.SetInput("message <- \"hello world\";");
+auto string_ast = parser.Parse();
+
 // Parse complex expression
 parser.SetInput("result <- (a + b) * factor;");
 auto complex_ast = parser.Parse();
@@ -182,6 +187,10 @@ scp::parser::SLRParser parser("MyProgram");
 parser.SetInput("result <- 123 + 456;");
 auto ast = parser.Parse();
 
+// Parse string assignment
+parser.SetInput("message <- \"hello world\";");
+auto string_ast = parser.Parse();
+
 // Parse complex expression  
 parser.SetInput("result <- (a + b) * factor;");
 auto complex_ast = parser.Parse();
@@ -198,9 +207,21 @@ auto program_ast = parser.Parse();
 result <- 42;
 ```
 
+#### String Assignment
+```
+message <- "hello world";
+name <- "SCP Compiler";
+```
+
 #### Arithmetic Expression
 ```
 result <- (variable1 + variable2) * factor;
+```
+
+#### Mixed String and Arithmetic Expression
+```
+result <- value + "test string" * count;
+greeting <- "hello" + "world";
 ```
 
 #### Multiple Statements
@@ -209,6 +230,7 @@ a <- 10;
 b <- 20;
 c <- a + b;
 result <- c * 2;
+message <- "computation complete";
 ```
 
 #### Operator Precedence
@@ -339,6 +361,7 @@ enum class ASTNodeType {
   ROOT,        // Program root
   IDENTIFIER,  // Variable names
   NUMBER,      // Numeric literals
+  STRING,      // String literals
   PLUS,        // Addition operations
   TIMES,       // Multiplication operations
   ASSIGN,      // Assignment statements
@@ -373,6 +396,7 @@ Both parsers have extensive test coverage including:
 
 ### Common Test Cases
 - **Basic Functionality Tests**: Simple assignments and expressions
+- **String Literal Tests**: String assignment and mixed string expressions
 - **Complex Expression Tests**: Nested parentheses, operator precedence
 - **Multiple Statement Tests**: Programs with multiple assignments
 - **Error Case Tests**: Invalid syntax, missing operators, unbalanced parentheses
@@ -394,6 +418,8 @@ Both parsers have extensive test coverage including:
 
 Test files located in `test/data/code/`:
 - `expression.scpl`: Complex arithmetic expressions
+- `string.scpl`: String literal assignments
+- `mixed_string.scpl`: Mixed string and arithmetic expressions
 - `multiple_statements.scpl`: Multi-statement programs
 - `operator_precedence.scpl`: Precedence validation
 - `parentheses.scpl`: Nested parentheses
@@ -455,7 +481,7 @@ StatementList → Statement StatementList | ε
 Statement → identifier assign Expression semicolon
 Expression → Expression plus Term | Term
 Term → Term times Factor | Factor  
-Factor → identifier | number | left_paren Expression right_paren
+Factor → identifier | number | string | left_paren Expression right_paren
 ```
 
 ### Transformed Grammar (for LL(1))
@@ -468,16 +494,16 @@ Expression → Term Expression'
 Expression' → plus Term Expression' | ε
 Term → Factor Term'
 Term' → times Factor Term' | ε
-Factor → identifier | number | left_paren Expression right_paren
+Factor → identifier | number | string | left_paren Expression right_paren
 ```
 
 ### FIRST and FOLLOW Sets
 
 **FIRST Sets:**
 - FIRST(Program) = {identifier, ε}
-- FIRST(Expression) = {identifier, number, left_paren}
-- FIRST(Term) = {identifier, number, left_paren}
-- FIRST(Factor) = {identifier, number, left_paren}
+- FIRST(Expression) = {identifier, number, string, left_paren}
+- FIRST(Term) = {identifier, number, string, left_paren}
+- FIRST(Factor) = {identifier, number, string, left_paren}
 
 **FOLLOW Sets:**
 - FOLLOW(Program) = {$}

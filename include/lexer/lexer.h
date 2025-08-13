@@ -71,6 +71,7 @@ class Lexer {
   std::unique_ptr<DeterministicFiniteAutomata> times_dfa_;
   std::unique_ptr<DeterministicFiniteAutomata> assign_dfa_;
   std::unique_ptr<DeterministicFiniteAutomata> semicolon_dfa_;
+  std::unique_ptr<DeterministicFiniteAutomata> string_dfa_;
 
   /* List of all DFAs used in the lexer */
   std::vector<DeterministicFiniteAutomata *> dfa_list_;
@@ -94,6 +95,7 @@ class Lexer {
   void SetupTimesDFA();       // (^\*$)
   void SetupAssignDFA();      // (^\=$)
   void SetupSemicolonDFA();   // (^\;$)
+  void SetupStringDFA();      // (^\\".*\\"$)
 
   /**
    * Skip whitespace characters at the current position.

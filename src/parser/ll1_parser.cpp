@@ -54,6 +54,8 @@ auto TokenTypeToParserString(core::TokenType type) -> std::string {
       return "semicolon";
     case core::TokenType::END_OF_FILE:
       return "$";
+    case core::TokenType::STRING:
+      return "string";
     default:
       return "";
   }
@@ -72,7 +74,8 @@ auto Term(const core::Token &token, const std::string &symbol) -> bool {
 // LL1Parser Implementation
 void LL1Parser::Init() {
   symbols_ = {"Program", "StatementList", "Statement", "Expression", "Term", "Factor", "Expression'", "Term'"};
-  terminals_ = {"identifier", "number", "left_paren", "right_paren", "plus", "times", "assign", "semicolon", "$"};
+  terminals_ = {"identifier", "number", "left_paren", "right_paren", "plus",
+                "times",      "assign", "semicolon",  "$",           "string"};
   symbols_.insert(terminals_.begin(), terminals_.end());
   parse_table_ = {
       // Program -> StatementList
@@ -89,6 +92,7 @@ void LL1Parser::Init() {
       {"Expression",
        {{"identifier", {"Term", "Expression'"}},
         {"number", {"Term", "Expression'"}},
+        {"string", {"Term", "Expression'"}},
         {"left_paren", {"Term", "Expression'"}}}},
 
       // Expression' -> plus Term Expression'
@@ -97,17 +101,21 @@ void LL1Parser::Init() {
 
       // Term -> Factor Term'
       {"Term",
-       {{"identifier", {"Factor", "Term'"}}, {"number", {"Factor", "Term'"}}, {"left_paren", {"Factor", "Term'"}}}},
+       {{"identifier", {"Factor", "Term'"}},
+        {"number", {"Factor", "Term'"}},
+        {"string", {"Factor", "Term'"}},
+        {"left_paren", {"Factor", "Term'"}}}},
 
       // Term' -> times Factor Term'
       // Term' -> ε
       {"Term'",
        {{"times", {"times", "Factor", "Term'"}}, {"plus", {"ε"}}, {"semicolon", {"ε"}}, {"right_paren", {"ε"}}}},
 
-      // Factor -> identifier | number | left_paren Expression right_paren
+      // Factor -> identifier | number | string | left_paren Expression right_paren
       {"Factor",
        {{"identifier", {"identifier"}},
         {"number", {"number"}},
+        {"string", {"string"}},
         {"left_paren", {"left_paren", "Expression", "right_paren"}}}}};
 }
 
@@ -376,6 +384,9 @@ auto LL1Parser::CreateTerminalASTNode(const std::string &symbol) -> std::shared_
   if (symbol == "assign") {
     return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::ASSIGN, "<-");
   }
+  if (symbol == "string") {
+    return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::STRING, symbol);
+  }
 
   // For other terminals like semicolon, parentheses, etc., return nullptr
   // as they are typically not needed in the AST
@@ -560,7 +571,7 @@ auto LL1Parser::TransformTermPrime(const std::shared_ptr<core::TreeNode> &parse_
 
 auto LL1Parser::TransformFactor(const std::shared_ptr<core::TreeNode> &parse_node)
     -> std::shared_ptr<core::AST::ASTNode> {
-  // Factor -> identifier | number | left_paren Expression right_paren
+  // Factor -> identifier | number | string | left_paren Expression right_paren
 
   // Check each child to find the meaningful content
   for (const auto &child : parse_node->children_) {
@@ -573,6 +584,9 @@ auto LL1Parser::TransformFactor(const std::shared_ptr<core::TreeNode> &parse_nod
       // Determine type based on content
       if (std::isdigit(child->val_[0]) != 0) {
         return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::NUMBER, child->val_);
+      }
+      if (child->val_[0] == '"') {
+        return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::STRING, child->val_);
       }
       if (std::isalpha(child->val_[0]) != 0) {
         return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::IDENTIFIER, child->val_);

@@ -1,0 +1,2 @@
+mixed_str <- "hello" + "world";
+result <- value + "test string" * count;

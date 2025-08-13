@@ -44,6 +44,9 @@ void PrintAST(const std::shared_ptr<scp::core::AST::ASTNode> &node, int depth = 
     case scp::core::ASTNodeType::ASSIGN:
       std::cout << "ASSIGN";
       break;
+    case scp::core::ASTNodeType::STRING:
+      std::cout << "STRING";
+      break;
   }
   std::cout << ", Value: '" << node->GetValue() << "'" << std::endl;
 
@@ -102,6 +105,7 @@ auto ReadFile(const std::string &filename) -> std::string {
 auto ParseInput(const std::string &input, const std::string &source_description, const std::string &program_name)
     -> bool {
   scp::parser::SLRParser parser(program_name);
+  // scp::parser::LL1Parser parser(program_name);
   parser.SetInput(input);
 
   std::cout << "=== Parsing " << source_description << " ===" << std::endl;

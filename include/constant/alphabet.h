@@ -9,7 +9,8 @@ class Alphabet {
  public:
   // Alphabet definitions
   static constexpr const char *DIGIT_ALPHABET = "0123456789";
-  static constexpr const char *LETTER_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  static constexpr const char *STRING_ALPHABET =
+      "\"0123456789-_=+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.>,<;:\'[]{}|!@#$%^&*()~` ";
   static constexpr const char *IDENTIFIER_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
   static constexpr const char *PLUS_ALPHABET = "+";
   static constexpr const char *TIMES_ALPHABET = "*";

@@ -29,7 +29,7 @@ class ErrorMessages {
    * @return A formatted error message.
    */
   static auto SymbolNotInAlphabetWithDetails(char symbol) -> std::string {
-    return "Parser: Symbol '" + std::string(1, symbol) + "' (ASCII: " + std::to_string(static_cast<int>(symbol)) +
+    return "Lexer: Symbol '" + std::string(1, symbol) + "' (ASCII: " + std::to_string(static_cast<int>(symbol)) +
            ") not in alphabet.";
   }
 

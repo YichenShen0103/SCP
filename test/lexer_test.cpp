@@ -43,7 +43,7 @@ class LexerTest : public ::testing::Test {
     }
 
     std::string line;
-    std::regex token_regex(R"(Token \d+: (\w+) = \"([^\"]*)\")");
+    std::regex token_regex(R"(Token \d+: (\w+) = \"(.*)\")");
     std::smatch match;
 
     while (std::getline(file, line)) {
@@ -68,6 +68,8 @@ class LexerTest : public ::testing::Test {
           type = core::TokenType::ASSIGN;
         } else if (type_str == "SEMICOLON") {
           type = core::TokenType::SEMICOLON;
+        } else if (type_str == "STRING") {
+          type = core::TokenType::STRING;
         } else if (type_str == "END_OF_FILE") {
           type = core::TokenType::END_OF_FILE;
         } else {
@@ -143,6 +145,8 @@ TEST_F(LexerTest, WhitespaceVariations) {
 }
 
 TEST_F(LexerTest, LeftAssociative) { TestFileAgainstExpected("left_associative.scpl", "left_associative.token"); }
+
+TEST_F(LexerTest, String) { TestFileAgainstExpected("string.scpl", "string.token"); }
 
 TEST_F(LexerTest, RealCode) { TestFileAgainstExpected("real_code.scpl", "real_code.token"); }
 

@@ -19,7 +19,8 @@ void SLRParser::SetInput(const std::string &input) { lexer_.SetInput(input); }
 
 void SLRParser::Init() {
   symbols_ = {"Program", "StatementList", "Statement", "Expression", "Term", "Factor"};
-  terminals_ = {"identifier", "number", "left_paren", "right_paren", "plus", "times", "assign", "semicolon", "$"};
+  terminals_ = {"identifier", "number", "left_paren", "right_paren", "plus",
+                "times",      "assign", "semicolon",  "$",           "string"};
   symbols_.insert(terminals_.begin(), terminals_.end());
   slr_stack_ = {};
   slr_stack_.push({constant::ASTConstant::ROOT_NODE_VALUE, nullptr, 0});
@@ -74,6 +75,7 @@ void SLRParser::Init() {
   // State 6: Statement -> identifier assign .Expression semicolon
   action_table_[6]["identifier"] = Action(Action::ActionType::SHIFT, 15);
   action_table_[6]["number"] = Action(Action::ActionType::SHIFT, 16);
+  action_table_[6]["string"] = Action(Action::ActionType::SHIFT, 21);
   action_table_[6]["left_paren"] = Action(Action::ActionType::SHIFT, 13);
 
   // State 7: Statement -> identifier .assign Expression semicolon
@@ -111,6 +113,7 @@ void SLRParser::Init() {
   // State 13: Factor -> left_paren .Expression right_paren
   action_table_[13]["identifier"] = Action(Action::ActionType::SHIFT, 15);
   action_table_[13]["number"] = Action(Action::ActionType::SHIFT, 16);
+  action_table_[13]["string"] = Action(Action::ActionType::SHIFT, 21);
   action_table_[13]["left_paren"] = Action(Action::ActionType::SHIFT, 13);
 
   // State 14: Factor -> left_paren Expression .right_paren, Expression -> Expression .plus Term
@@ -138,11 +141,13 @@ void SLRParser::Init() {
   // State 18: Expression -> Expression plus .Term
   action_table_[18]["identifier"] = Action(Action::ActionType::SHIFT, 15);
   action_table_[18]["number"] = Action(Action::ActionType::SHIFT, 16);
+  action_table_[18]["string"] = Action(Action::ActionType::SHIFT, 21);
   action_table_[18]["left_paren"] = Action(Action::ActionType::SHIFT, 13);
 
   // State 19: Term -> Term times .Factor
   action_table_[19]["identifier"] = Action(Action::ActionType::SHIFT, 15);
   action_table_[19]["number"] = Action(Action::ActionType::SHIFT, 16);
+  action_table_[19]["string"] = Action(Action::ActionType::SHIFT, 21);
   action_table_[19]["left_paren"] = Action(Action::ActionType::SHIFT, 13);
 
   // State 20: Factor -> left_paren Expression right_paren.
@@ -154,6 +159,12 @@ void SLRParser::Init() {
       Action(Action::ActionType::REDUCE, 0, {"left_paren", "Expression", "right_paren"}, "Factor");
   action_table_[20]["times"] =
       Action(Action::ActionType::REDUCE, 0, {"left_paren", "Expression", "right_paren"}, "Factor");
+
+  // State 21: Factor -> string.
+  action_table_[21]["semicolon"] = Action(Action::ActionType::REDUCE, 0, {"string"}, "Factor");
+  action_table_[21]["right_paren"] = Action(Action::ActionType::REDUCE, 0, {"string"}, "Factor");
+  action_table_[21]["plus"] = Action(Action::ActionType::REDUCE, 0, {"string"}, "Factor");
+  action_table_[21]["times"] = Action(Action::ActionType::REDUCE, 0, {"string"}, "Factor");
 }
 
 auto SLRParser::Parse() -> std::shared_ptr<core::AST> {
@@ -309,6 +320,8 @@ auto SLRParser::TokenTypeToString(core::TokenType type) -> std::string {
       return "semicolon";
     case core::TokenType::END_OF_FILE:
       return "$";
+    case core::TokenType::STRING:
+      return "string";
     default:
       return "";
   }
@@ -384,6 +397,9 @@ auto SLRParser::CreateTerminalASTNode(const std::string &symbol) -> std::shared_
   }
   if (symbol == "assign") {
     return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::ASSIGN, "<-");
+  }
+  if (symbol == "string") {
+    return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::STRING, symbol);
   }
 
   // For other terminals like semicolon, parentheses, etc., return nullptr
@@ -530,7 +546,7 @@ auto SLRParser::TransformTerm(const std::shared_ptr<core::TreeNode> &parse_node)
 
 auto SLRParser::TransformFactor(const std::shared_ptr<core::TreeNode> &parse_node)
     -> std::shared_ptr<core::AST::ASTNode> {
-  // Factor -> identifier | number | left_paren Expression right_paren
+  // Factor -> identifier | number | string | left_paren Expression right_paren
 
   // Check each child to find the meaningful content
   for (const auto &child : parse_node->children_) {
@@ -543,6 +559,9 @@ auto SLRParser::TransformFactor(const std::shared_ptr<core::TreeNode> &parse_nod
       // Determine type based on content
       if (std::isdigit(child->val_[0]) != 0) {
         return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::NUMBER, child->val_);
+      }
+      if (child->val_[0] == '"') {
+        return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::STRING, child->val_);
       }
       if (std::isalpha(child->val_[0]) != 0) {
         return std::make_shared<core::AST::ASTNode>(core::ASTNodeType::IDENTIFIER, child->val_);

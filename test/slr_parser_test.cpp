@@ -73,6 +73,9 @@ class SLRParserTest : public ::testing::Test {
       case core::ASTNodeType::ASSIGN:
         result += "ASSIGN";
         break;
+      case core::ASTNodeType::STRING:
+        result += "STRING";
+        break;
     }
     result += ", Value: '" + node->GetValue() + "'\n";
 
@@ -125,6 +128,12 @@ TEST_F(SLRParserTest, ParenthesesPrecedence) { VerifyAST("parentheses.scpl", "pa
 
 // Test left associativity
 TEST_F(SLRParserTest, LeftAssociativity) { VerifyAST("left_associative.scpl", "left_associative.ast"); }
+
+// Test string literals
+TEST_F(SLRParserTest, StringLiterals) { VerifyAST("string.scpl", "string.ast"); }
+
+// Test mixed string and variable expressions
+TEST_F(SLRParserTest, MixedStringExpressions) { VerifyAST("mixed_string.scpl", "mixed_string.ast"); }
 
 // Test complex real-world code
 TEST_F(SLRParserTest, RealWorldCode) { VerifyAST("real_code.scpl", "real_code.ast"); }
@@ -348,6 +357,38 @@ TEST_F(SLRParserTest, SingleAssignment) {
   EXPECT_EQ(identifier->GetValue(), "x");
   EXPECT_EQ(number->GetType(), core::ASTNodeType::NUMBER);
   EXPECT_EQ(number->GetValue(), "1");
+}
+
+// Test string literal AST structure
+TEST_F(SLRParserTest, StringLiteralStructure) {
+  std::string input = "msg <- \"hello world\";";
+  auto ast = ParseInput(input);
+  ASSERT_TRUE(ast != nullptr);
+
+  auto root = ast->GetRoot();
+  ASSERT_TRUE(root != nullptr);
+  EXPECT_EQ(root->GetType(), core::ASTNodeType::ROOT);
+
+  // Should have one child (the assignment)
+  const auto &children = root->GetChildren();
+  ASSERT_EQ(children.size(), 1);
+
+  auto assignment = children.front();
+  EXPECT_EQ(assignment->GetType(), core::ASTNodeType::ASSIGN);
+  EXPECT_EQ(assignment->GetValue(), "<-");
+
+  // Assignment should have two children: identifier and string
+  const auto &assign_children = assignment->GetChildren();
+  ASSERT_EQ(assign_children.size(), 2);
+
+  auto identifier = assign_children.front();
+  auto string_literal = *std::next(assign_children.begin());
+
+  EXPECT_EQ(identifier->GetType(), core::ASTNodeType::IDENTIFIER);
+  EXPECT_EQ(identifier->GetValue(), "msg");
+
+  EXPECT_EQ(string_literal->GetType(), core::ASTNodeType::STRING);
+  EXPECT_EQ(string_literal->GetValue(), "\"hello world\"");
 }
 
 // Performance test for heavy_test.scpl

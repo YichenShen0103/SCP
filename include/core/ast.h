@@ -10,14 +10,7 @@ namespace scp::core {
 /**
  * Enum class for AST node types
  */
-enum class ASTNodeType {
-  ROOT,
-  IDENTIFIER,
-  NUMBER,
-  PLUS,
-  TIMES,
-  ASSIGN,
-};
+enum class ASTNodeType { ROOT, IDENTIFIER, NUMBER, PLUS, TIMES, ASSIGN, STRING };
 
 /**
  * Struct representing a node in the abstract syntax tree (AST).

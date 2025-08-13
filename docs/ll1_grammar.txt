@@ -1,5 +1,5 @@
 Terminals:
-    identifier, number, plus (+), times (*), assign (<-), left_paren ((), right_paren ()), semicolon (;)
+    identifier, number, plus (+), times (*), assign (<-), left_paren ((), right_paren ()), semicolon (;), string
 
 Non-terminals:
     Program, StatementList, Statement, Expression, Term, Factor
@@ -20,17 +20,18 @@ Productions:
         | ε
     Factor -> identifier
             | number
+            | string
             | left_paren Expression right_paren
 
 FIRST sets:
     FIRST(Program) = {identifier, ε}
     FIRST(StatementList) = {identifier, ε}
     FIRST(Statement) = {identifier}
-    FIRST(Expression) = {identifier, number, left_paren}
+    FIRST(Expression) = {identifier, number, left_paren, string}
     FIRST(Expression') = {plus, ε}
-    FIRST(Term) = {identifier, number, left_paren}
+    FIRST(Term) = {identifier, number, left_paren, string}
     FIRST(Term') = {times, ε}
-    FIRST(Factor) = {identifier, number, left_paren}
+    FIRST(Factor) = {identifier, number, left_paren, string}
 
 FOLLOW sets:
     FOLLOW(Program) = {$} 

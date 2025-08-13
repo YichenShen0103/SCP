@@ -8,7 +8,18 @@ namespace scp::core {
 /**
  * Enum class for token types
  */
-enum class TokenType { IDENTIFIER, NUMBER, PLUS, TIMES, LEFT_PAREN, RIGHT_PAREN, ASSIGN, SEMICOLON, END_OF_FILE };
+enum class TokenType {
+  IDENTIFIER,
+  NUMBER,
+  PLUS,
+  TIMES,
+  LEFT_PAREN,
+  RIGHT_PAREN,
+  ASSIGN,
+  SEMICOLON,
+  END_OF_FILE,
+  STRING
+};
 
 /**
  * Convert a token type to a string representation.

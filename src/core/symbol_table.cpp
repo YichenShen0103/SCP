@@ -5,19 +5,19 @@
 
 namespace scp::core {
 
-void SymbolTable::AddSymbol(const std::string &name, int value) { symbol_stack_.push(Symbol(name, value)); }
+void SymbolTable::AddSymbol(const std::string &name) { symbol_stack_.push(name); }
 
-auto SymbolTable::FindSymbol(const std::string &name) const -> int {
-  std::stack<Symbol> temp_stack = symbol_stack_;
+auto SymbolTable::FindSymbol(const std::string &name) const -> bool {
+  std::stack<std::string> temp_stack = symbol_stack_;
 
   while (!temp_stack.empty()) {
-    if (temp_stack.top().name_ == name) {
-      return temp_stack.top().value_;
+    if (temp_stack.top() == name) {
+      return true;
     }
     temp_stack.pop();
   }
 
-  return -1;
+  return false;
 }
 
 }  // namespace scp::core

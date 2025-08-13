@@ -19,18 +19,19 @@ Token class that contains token type and value.
 
 ## Supported Token Types
 
-The Lexer currently supports the following 8 token types:
+The Lexer currently supports the following 9 token types:
 
-| Token Type | Description | Regular Expression | Examples |
-|------------|-------------|-------------------|----------|
-| `IDENTIFIER` | Identifier | `^[A-Za-z_][A-Za-z0-9_]*$` | `variable1`, `_temp`, `myVar` |
-| `NUMBER` | Number | `^[0-9]+$` | `123`, `0`, `999` |
-| `PLUS` | Plus operator | `^\+$` | `+` |
-| `TIMES` | Multiplication operator | `^\*$` | `*` |
-| `LEFT_PAREN` | Left parenthesis | `^\($` | `(` |
-| `RIGHT_PAREN` | Right parenthesis | `^\)$` | `)` |
-| `ASSIGN` | Assignment operator | `^<-$` | `<-` |
-| `SEMICOLON` | Semicolon | `^;$` | `;` |
+| Token Type    | Description             | Regular Expression         | Examples                            |
+| ------------- | ----------------------- | -------------------------- | ----------------------------------- |
+| `IDENTIFIER`  | Identifier              | `^[A-Za-z_][A-Za-z0-9_]*$` | `variable1`, `_temp`, `myVar`       |
+| `NUMBER`      | Number                  | `^[0-9]+$`                 | `123`, `0`, `999`                   |
+| `STRING`      | String literal          | `^".*"$`                   | `"hello"`, `"hello world"`, `"123"` |
+| `PLUS`        | Plus operator           | `^\+$`                     | `+`                                 |
+| `TIMES`       | Multiplication operator | `^\*$`                     | `*`                                 |
+| `LEFT_PAREN`  | Left parenthesis        | `^\($`                     | `(`                                 |
+| `RIGHT_PAREN` | Right parenthesis       | `^\)$`                     | `)`                                 |
+| `ASSIGN`      | Assignment operator     | `^<-$`                     | `<-`                                |
+| `SEMICOLON`   | Semicolon               | `^;$`                      | `;`                                 |
 
 ## Main Features
 
@@ -84,6 +85,16 @@ for (const auto& token : tokens) {
 ```
 
 ### Output Example
+
+For input: `message <- "hello world";`
+
+Output tokens:
+```
+Token: IDENTIFIER, Value: message
+Token: ASSIGN, Value: <-
+Token: STRING, Value: "hello world"
+Token: SEMICOLON, Value: ;
+```
 
 For input: `variable1 <- 123 + 456;`
 

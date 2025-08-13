@@ -31,6 +31,8 @@ void Lexer::InitializeDFAs() {
       std::make_unique<DeterministicFiniteAutomata>(3, constant::Alphabet::ASSIGN_ALPHABET, core::TokenType::ASSIGN);
   semicolon_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::SEMICOLON_ALPHABET,
                                                                  core::TokenType::SEMICOLON);
+  string_dfa_ =
+      std::make_unique<DeterministicFiniteAutomata>(3, constant::Alphabet::STRING_ALPHABET, core::TokenType::STRING);
 
   // Setup transitions for each DFA
   SetupNumberDFA();
@@ -41,6 +43,7 @@ void Lexer::InitializeDFAs() {
   SetupTimesDFA();
   SetupAssignDFA();
   SetupSemicolonDFA();
+  SetupStringDFA();
 
   // Release the DFAs (make them ready for evaluation)
   number_dfa_->Release();
@@ -51,8 +54,9 @@ void Lexer::InitializeDFAs() {
   right_paren_dfa_->Release();
   assign_dfa_->Release();
   semicolon_dfa_->Release();
+  string_dfa_->Release();
 
-  // Setup the DFA list for iteration
+  // Set up the DFA list for iteration
   dfa_list_.push_back(number_dfa_.get());
   dfa_list_.push_back(identifier_dfa_.get());
   dfa_list_.push_back(times_dfa_.get());
@@ -61,6 +65,7 @@ void Lexer::InitializeDFAs() {
   dfa_list_.push_back(right_paren_dfa_.get());
   dfa_list_.push_back(assign_dfa_.get());
   dfa_list_.push_back(semicolon_dfa_.get());
+  dfa_list_.push_back(string_dfa_.get());
 
   // Initialize survival list
   survival_list_.resize(dfa_list_.size());
@@ -125,6 +130,18 @@ void Lexer::SetupSemicolonDFA() {
   semicolon_dfa_->SetFinalState(1);
 }
 
+void Lexer::SetupStringDFA() {
+  string_dfa_->AddTransition(0, '\"', 1);
+  string_dfa_->AddTransition(1, '\"', 2);
+  for (char c : std::string(constant::Alphabet::STRING_ALPHABET)) {
+    // Stay in state 1 for valid characters (except quotes which transition to final state)
+    if (c != '\"') {
+      string_dfa_->AddTransition(1, c, 1);
+    }
+  }
+  string_dfa_->SetFinalState(2);
+}
+
 void Lexer::SetInput(const std::string &input) {
   input_ = input;
   current_pos_ = 0;
@@ -179,9 +196,10 @@ auto Lexer::GetNextToken(core::Token &token) -> bool {
 
   // Try to consume characters as long as possible
   while (current_pos_ < input_.size() && have_survival) {
-    // Stop at whitespace
-    if (input_[current_pos_] == ' ' || input_[current_pos_] == '\t' || input_[current_pos_] == '\n' ||
-        input_[current_pos_] == '\r') {
+    // Stop at whitespace only if string DFA is not active
+    if ((input_[current_pos_] == ' ' || input_[current_pos_] == '\t' || input_[current_pos_] == '\n' ||
+         input_[current_pos_] == '\r') &&
+        !survival_list_[8]) {  // 8 is the index of string_dfa_
       break;
     }
 
