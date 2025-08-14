@@ -9,7 +9,13 @@ namespace scp::core {
 /**
  * Enumeration representing the different types in the SCP language.
  */
-enum class Type { STRING, NUMBER, UNDEFINED };
+enum class Type {
+  STRING,
+  NUMBER,
+  UNDEFINED,
+  IN_STREAM,
+  OUT_STREAM,
+};
 
 /**
  * Converts a Type enum to its string representation.

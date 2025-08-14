@@ -23,12 +23,28 @@ auto AST::ASTNode::TypeCheck(const std::shared_ptr<TypeEnvironment> &environment
       auto child2 = children_.back();
       Type type1 = environment->GetType(child1->value_);
       Type type2 = child2->TypeCheck(environment, has_bug);
+      if (type2 == Type::IN_STREAM) {
+        type2 = Type::STRING;
+      }
+      if (type1 == Type::IN_STREAM) {
+        has_bug = true;
+        std::cerr << constant::ErrorMessages::CANNOT_ASSIGN_TO_INPUT_STREAM << std::endl;
+        return Type::UNDEFINED;  // Return UNDEFINED if trying to assign to an input stream
+      }
       if (type1 == Type::UNDEFINED) {
         environment->AddSymbol(child1->value_, type2);
         return type2;
       }
+      if (type2 == Type::OUT_STREAM) {
+        has_bug = true;
+        std::cerr << constant::ErrorMessages::OUTPUT_STREAM_AS_RIGHT_VALUE << std::endl;
+        return Type::UNDEFINED;  // Return UNDEFINED if trying to assign to an output stream
+      }
       if (type1 == type2) {
         return type1;
+      }
+      if (type1 == Type::OUT_STREAM) {
+        return Type::OUT_STREAM;  // If the left-hand side is an output stream, return it
       }
       has_bug = true;
       std::cerr << constant::ErrorMessages::TypeCannotAssign(child1->GetValue(), TypeToString(type1),

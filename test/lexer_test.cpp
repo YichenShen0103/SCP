@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <memory>
-#include <optional>
 #include <regex>
 #include <sstream>
 #include <string>
@@ -24,7 +23,7 @@ class LexerTest : public ::testing::Test {
   std::unique_ptr<lexer::Lexer> lexer_;
 
   // Helper function to read file content
-  auto ReadTestFile(const std::string &filename) -> std::string {
+  static auto ReadTestFile(const std::string &filename) -> std::string {
     std::ifstream file("/Users/shenyc/code/compiler/test/data/code/" + filename);
     if (!file.is_open()) {
       return "";

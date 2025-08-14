@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "constant/alphabet.h"
-#include "constant/error_messages.h"
 #include "core/token.h"
 
 namespace scp::lexer {
@@ -228,7 +227,7 @@ auto Lexer::GetNextToken(core::Token &token) -> bool {
           // Check if this DFA is in accepting state
           if (dfa_list_[i]->IsAccepted()) {
             last_accepted_pos = current_pos_ + 1;
-            last_accepted_dfa = i;
+            last_accepted_dfa = static_cast<int>(i);
           }
         }
       }

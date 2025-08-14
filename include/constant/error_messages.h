@@ -25,6 +25,8 @@ class ErrorMessages {
 
   // Semantic analysis error messages
   static constexpr const char *TYPE_CHECK_FAILED = "Type checker: Type check failed.";
+  static constexpr const char *CANNOT_ASSIGN_TO_INPUT_STREAM = "Type checker: Cannot assign to input stream.";
+  static constexpr const char *OUTPUT_STREAM_AS_RIGHT_VALUE = "Type checker: Output stream cannot";
 
   /**
    * Generate an error message for a symbol not in the alphabet with its ASCII value.
@@ -104,7 +106,7 @@ class ErrorMessages {
    * @return A formatted error message.
    */
   static auto TypeCannotAdd(const std::string &type1, const std::string &type2) -> std::string {
-    return "Type checker: cannot add" + type1 + " and " + type2 + ".";
+    return "Type checker: cannot add " + type1 + " and " + type2 + ".";
   }
 
   /**
@@ -114,7 +116,7 @@ class ErrorMessages {
    * @return A formatted error message.
    */
   static auto TypeCannotTime(const std::string &type1, const std::string &type2) -> std::string {
-    return "Type checker: cannot time" + type1 + " and " + type2 + ".";
+    return "Type checker: cannot time " + type1 + " and " + type2 + ".";
   }
 
   /**

@@ -16,8 +16,7 @@ class TypeChecker {
   /**
    * Constructor for the TypeChecker.
    */
-  explicit TypeChecker(std::shared_ptr<core::AST> ast)
-      : type_environment_(std::make_shared<core::TypeEnvironment>()), ast_(std::move(ast)) {}
+  explicit TypeChecker(std::shared_ptr<core::AST> ast);
 
   /**
    * Default destructor for the TypeChecker.

@@ -1,8 +1,16 @@
 #include "semant/type_checker.h"
 
+#include <utility>
+
 #include "constant/error_messages.h"
 
 namespace scp::semant {
+
+TypeChecker::TypeChecker(std::shared_ptr<core::AST> ast)
+    : type_environment_(std::make_shared<core::TypeEnvironment>()), ast_(std::move(ast)) {
+  type_environment_->AddSymbol("stdin", core::Type::IN_STREAM);
+  type_environment_->AddSymbol("stdout", core::Type::OUT_STREAM);
+}
 
 void TypeChecker::CheckType() {
   bool has_bug = false;

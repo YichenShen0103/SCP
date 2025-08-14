@@ -1,11 +1,8 @@
 #include <gtest/gtest.h>
 #include <fstream>
-#include <iostream>
 #include <memory>
 #include <string>
-#include <vector>
 
-#include "core/ast.h"
 #include "parser/slr_parser.h"
 #include "semant/type_checker.h"
 
@@ -18,7 +15,7 @@ class TypeCheckerTest : public ::testing::Test {
   std::unique_ptr<parser::SLRParser> parser_;
 
   // Helper function to read file content
-  auto ReadTestFile(const std::string &filename) -> std::string {
+  static auto ReadTestFile(const std::string &filename) -> std::string {
     std::ifstream file("/Users/shenyc/code/compiler/test/data/code/" + filename);
     if (!file.is_open()) {
       return "";
@@ -199,6 +196,29 @@ TEST_F(TypeCheckerTest, ComplexExpressions) {
 
   // String operations with variables
   ExpectTypeCheckSuccess(R"(prefix <- "hello"; suffix <- "world"; message <- prefix + suffix;)");
+}
+
+// Test input files
+TEST_F(TypeCheckerTest, TypeIOStreamFiles) {
+  // Test number + string error
+  std::string error_add_num_str = ReadTestFile("iostream.scpl");
+  ASSERT_FALSE(error_add_num_str.empty());
+  ExpectTypeCheckSuccess(error_add_num_str);
+
+  // Test stdin error
+  std::string error_add_str_num = ReadTestFile("error_io_1.scpl");
+  ASSERT_FALSE(error_add_str_num.empty());
+  ExpectTypeCheckFailure(error_add_str_num);
+
+  // Test stdout error
+  std::string error_mult_strings = ReadTestFile("error_io_2.scpl");
+  ASSERT_FALSE(error_mult_strings.empty());
+  ExpectTypeCheckFailure(error_mult_strings);
+
+  // Test stdin operation error
+  std::string error_undefined = ReadTestFile("error_io_3.scpl");
+  ASSERT_FALSE(error_undefined.empty());
+  ExpectTypeCheckFailure(error_undefined);
 }
 
 }  // namespace scp::test

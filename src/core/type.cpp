@@ -29,6 +29,10 @@ auto TypeToString(Type type) -> std::string {
       return "number";
     case Type::UNDEFINED:
       return "undefined";
+    case Type::IN_STREAM:
+      return "input stream";
+    case Type::OUT_STREAM:
+      return "output stream";
     default:
       return "unknown";
   }
