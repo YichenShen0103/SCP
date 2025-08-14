@@ -31,7 +31,7 @@ void Lexer::InitializeDFAs() {
   semicolon_dfa_ = std::make_unique<DeterministicFiniteAutomata>(2, constant::Alphabet::SEMICOLON_ALPHABET,
                                                                  core::TokenType::SEMICOLON);
   string_dfa_ =
-      std::make_unique<DeterministicFiniteAutomata>(3, constant::Alphabet::STRING_ALPHABET, core::TokenType::STRING);
+      std::make_unique<DeterministicFiniteAutomata>(4, constant::Alphabet::STRING_ALPHABET, core::TokenType::STRING);
 
   // Setup transitions for each DFA
   SetupNumberDFA();
@@ -130,15 +130,33 @@ void Lexer::SetupSemicolonDFA() {
 }
 
 void Lexer::SetupStringDFA() {
+  // State 0: Initial state, waiting for opening quote
   string_dfa_->AddTransition(0, '\"', 1);
-  string_dfa_->AddTransition(1, '\"', 2);
+
+  // State 1: Inside string, normal characters
   for (char c : std::string(constant::Alphabet::STRING_ALPHABET)) {
-    // Stay in state 1 for valid characters (except quotes which transition to final state)
-    if (c != '\"') {
+    if (c == '\"') {
+      // Closing quote transitions to final state
+      string_dfa_->AddTransition(1, c, 3);
+    } else if (c == '\\') {
+      // Escape character transitions to escape state
+      string_dfa_->AddTransition(1, c, 2);
+    } else {
+      // Normal characters stay in string state
       string_dfa_->AddTransition(1, c, 1);
     }
   }
-  string_dfa_->SetFinalState(2);
+
+  // State 2: Escape state, after backslash
+  // Valid escape sequences: \n, \t, \r, \\, \"
+  string_dfa_->AddTransition(2, 'n', 1);   // \n -> newline
+  string_dfa_->AddTransition(2, 't', 1);   // \t -> tab
+  string_dfa_->AddTransition(2, 'r', 1);   // \r -> carriage return
+  string_dfa_->AddTransition(2, '\\', 1);  // \\ -> backslash
+  string_dfa_->AddTransition(2, '\"', 1);  // \" -> quote
+
+  // State 3: Final state (string completed)
+  string_dfa_->SetFinalState(3);
 }
 
 void Lexer::SetInput(const std::string &input) {

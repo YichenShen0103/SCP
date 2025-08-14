@@ -1,0 +1,5 @@
+newline_str <- "hello\nworld";
+tab_str <- "name\tvalue";
+quote_str <- "He said \"Hello\"";
+backslash_str <- "path\\to\\file";
+mixed_str <- "Line1\nTab:\tQuote:\"text\"\nEnd";

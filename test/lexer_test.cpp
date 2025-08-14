@@ -147,6 +147,15 @@ TEST_F(LexerTest, LeftAssociative) { TestFileAgainstExpected("left_associative.s
 
 TEST_F(LexerTest, String) { TestFileAgainstExpected("string.scpl", "string.token"); }
 
+// Test escape sequences in strings
+TEST_F(LexerTest, EscapeSequences) { TestFileAgainstExpected("escape_sequences.scpl", "escape_sequences.token"); }
+
+// Test invalid escape sequences
+TEST_F(LexerTest, InvalidEscape) { TestFileAgainstExpected("invalid_escape.scpl", "invalid_escape.token"); }
+
+// Test mixed normal and escape strings
+TEST_F(LexerTest, MixedEscape) { TestFileAgainstExpected("mixed_escape.scpl", "mixed_escape.token"); }
+
 TEST_F(LexerTest, RealCode) { TestFileAgainstExpected("real_code.scpl", "real_code.token"); }
 
 TEST_F(LexerTest, WhitespaceOnly) {

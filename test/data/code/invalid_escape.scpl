@@ -1,0 +1,3 @@
+invalid_escape1 <- "bad\kescape";
+invalid_escape2 <- "incomplete\";
+normal_str <- "this is ok";

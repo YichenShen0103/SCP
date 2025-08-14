@@ -1,0 +1,3 @@
+simple <- "hello";
+with_escape <- "hello\nworld";
+result <- simple + with_escape;
