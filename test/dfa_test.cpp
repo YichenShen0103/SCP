@@ -49,9 +49,18 @@ class DFATest : public ::testing::Test {
   std::unique_ptr<lexer::DeterministicFiniteAutomata> number_dfa_;
   std::unique_ptr<lexer::DeterministicFiniteAutomata> identifier_dfa_;
 
+  // Helper function to get test data path
+  static auto GetTestDataPath() -> std::string {
+#ifdef TEST_DATA_DIR
+    return TEST_DATA_DIR;
+#else
+    return "test/data";
+#endif
+  }
+
   // Helper function to read file content
   auto ReadTestFile(const std::string &filename) -> std::string {
-    std::ifstream file("/Users/shenyc/code/compiler/test/data/code" + filename);
+    std::ifstream file(GetTestDataPath() + "/code/" + filename);
     if (!file.is_open()) {
       return "";
     }

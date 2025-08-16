@@ -9,6 +9,9 @@ if(NOT GTest_FOUND)
       "GoogleTest not found. Please install it: brew install googletest")
 endif()
 
+# Define test data path
+set(TEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
+
 # Function to create GoogleTest test executable
 function(create_gtest_executable target_name sources)
   add_executable(${target_name} ${sources})
@@ -18,6 +21,9 @@ function(create_gtest_executable target_name sources)
                CXX_STANDARD_REQUIRED ON
                CXX_EXTENSIONS OFF
                RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test)
+  
+  # Define TEST_DATA_DIR as a compile-time constant
+  target_compile_definitions(${target_name} PRIVATE TEST_DATA_DIR="${TEST_DATA_DIR}")
     
     # Handle circular dependencies differently on different platforms
     if(APPLE)

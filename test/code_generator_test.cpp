@@ -18,8 +18,13 @@ class CodeGeneratorTest : public ::testing::Test {
  protected:
   void SetUp() override {
     parser_ = std::make_unique<parser::SLRParser>("CodeGeneratorTest");
-    test_data_path_ = "/Users/shenyc/code/compiler/test/data/code/";
-    output_data_path_ = "/Users/shenyc/code/compiler/test/data/output/";
+#ifdef TEST_DATA_DIR
+    std::string base_path = TEST_DATA_DIR;
+#else
+    std::string base_path = "test/data";
+#endif
+    test_data_path_ = base_path + "/code/";
+    output_data_path_ = base_path + "/output/";
     temp_asm_file_ = "/tmp/test_output.s";
   }
 
