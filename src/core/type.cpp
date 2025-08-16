@@ -1,5 +1,6 @@
 #include "core/type.h"
 
+#include <memory>
 #include <stack>
 #include <string>
 
@@ -46,6 +47,15 @@ auto TypeEnvironment::GetType(const std::string &name) const -> Type {
     return symbol.type_;
   }
   return Type::UNDEFINED;  // Return UNDEFINED if the symbol is not found
+}
+
+auto TypeEnvironment::SymbolTable::PopSymbol() -> std::shared_ptr<Symbol> {
+  if (symbol_stack_.empty()) {
+    return nullptr;
+  }
+  Symbol top_symbol = symbol_stack_.top();
+  symbol_stack_.pop();
+  return std::make_shared<Symbol>(top_symbol);
 }
 
 }  // namespace scp::core

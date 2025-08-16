@@ -26,7 +26,7 @@ class TypeChecker {
   /**
    * Checks the types of the expressions in the AST.
    */
-  void CheckType();
+  auto CheckType() -> std::shared_ptr<core::TypeEnvironment>;
 
  private:
   /* The type environment for the type checker. */

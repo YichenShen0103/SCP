@@ -19,3 +19,6 @@ target_link_libraries(lexer scp_lexer)
 
 create_bin_executable(parser "parser.cpp")
 target_link_libraries(parser scp_parser)
+
+create_bin_executable(scpc "scpc.cpp")
+target_link_libraries(scpc scp_cgen)

@@ -1,0 +1,3 @@
+stdout <- "please tell me your name: ";
+name <- stdin;
+stdout <- "hello " + name + "!\n";

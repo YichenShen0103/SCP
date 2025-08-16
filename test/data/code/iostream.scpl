@@ -1,3 +1,4 @@
-stdout <- "hello world";
+stdout <- "hello world\n";
+stdout <- "Please input a number: ";
 input <- stdin;
 stdout <- input + " from stdin";

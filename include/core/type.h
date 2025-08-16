@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <stack>
 #include <string>
 #include <utility>
@@ -74,6 +75,12 @@ class TypeEnvironment {
      */
     auto FindSymbolByName(const std::string &name, Symbol &symbol) const -> bool;
 
+    /**
+     * Pop a symbol from the stack.
+     * @return The popped Symbol.
+     */
+    auto PopSymbol() -> std::shared_ptr<Symbol>;
+
    private:
     // Internal storage for symbols
     std::stack<Symbol> symbol_stack_;
@@ -96,6 +103,12 @@ class TypeEnvironment {
    * @return The Type of the symbol.
    */
   auto GetType(const std::string &name) const -> Type;
+
+  /**
+   * Get the current symbol table.
+   * @return The current SymbolTable.
+   */
+  auto GetSymbolTable() const -> std::shared_ptr<SymbolTable> { return std::make_shared<SymbolTable>(symbol_table_); }
 
  private:
   /* The current symbol table */

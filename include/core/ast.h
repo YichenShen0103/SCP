@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 
+#include "cgen/runtime_environment.h"
 #include "core/type.h"
 
 namespace scp::core {
@@ -102,6 +103,13 @@ class AST {
      */
     auto TypeCheck(const std::shared_ptr<TypeEnvironment> &environment, bool &has_bug) const -> Type;
 
+    /**
+     * Generate code for the AST node.
+     * @param runtime The runtime environment.
+     * @return The generated code as a string.
+     */
+    auto GenerateCode(const std::shared_ptr<cgen::RuntimeEnvironment> &runtime) const -> std::string;
+
    private:
     /* The value of the AST node */
     std::string value_;
@@ -109,6 +117,13 @@ class AST {
     ASTNodeType type_;
     /* The children of the AST node */
     std::list<std::shared_ptr<ASTNode>> children_;
+
+    /**
+     * Determine the runtime type of an expression for code generation.
+     * @param runtime The runtime environment.
+     * @return The runtime type of the expression.
+     */
+    auto GetRuntimeType(const std::shared_ptr<cgen::RuntimeEnvironment> &runtime) const -> Type;
   };
 
   /**

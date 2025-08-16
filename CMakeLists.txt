@@ -39,6 +39,7 @@ add_subdirectory(src/core)
 add_subdirectory(src/lexer)
 add_subdirectory(src/parser)
 add_subdirectory(src/semant)
+add_subdirectory(src/cgen)
 add_subdirectory(src/)
 
 # Enable testing and add test subdirectory
@@ -46,10 +47,10 @@ enable_testing()
 add_subdirectory(test)
 
 # Installation rules
-install(TARGETS lexer parser RUNTIME DESTINATION bin)
+install(TARGETS lexer parser scpc RUNTIME DESTINATION bin)
 
 install(
-  TARGETS scp_core scp_lexer scp_parser scp_semant
+  TARGETS scp_core scp_lexer scp_parser scp_semant scp_cgen
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
 
@@ -130,7 +131,7 @@ add_custom_target(
   --verbose=2
   --quiet
   --linelength=120
-  --filter=-legal/copyright,-build/header_guard,-runtime/references,-whitespace/indent_namespace
+  --filter=-legal/copyright,-build/header_guard,-runtime/references,-whitespace/indent_namespace,-build/c++17
 )
 
 # Static analysis target

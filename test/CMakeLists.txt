@@ -17,7 +17,7 @@ function(create_gtest_executable target_name sources)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test
     )
     target_include_directories(${target_name} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_link_libraries(${target_name} scp_semant GTest::gtest_main)
+    target_link_libraries(${target_name} scp_cgen scp_semant GTest::gtest_main)
 endfunction()
 
 # Create test executables
@@ -26,6 +26,7 @@ create_gtest_executable(lexer_test "lexer_test.cpp")
 create_gtest_executable(ll1_parser_test "ll1_parser_test.cpp")
 create_gtest_executable(slr_parser_test "slr_parser_test.cpp")
 create_gtest_executable(type_checker_test "type_checker_test.cpp")
+create_gtest_executable(code_generator_test "code_generator_test.cpp")
 
 # Add tests to CTest
 add_test(NAME dfa_test COMMAND dfa_test)
@@ -33,3 +34,4 @@ add_test(NAME lexer_test COMMAND lexer_test)
 add_test(NAME ll1_parser_test COMMAND ll1_parser_test)
 add_test(NAME slr_parser_test COMMAND slr_parser_test)
 add_test(NAME type_checker_test COMMAND type_checker_test)
+add_test(NAME code_generator_test COMMAND code_generator_test)

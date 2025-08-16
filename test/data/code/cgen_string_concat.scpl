@@ -1,0 +1,2 @@
+name <- "alice";
+stdout <- "hello " + name;
