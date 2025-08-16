@@ -31,14 +31,16 @@ class CodeGenerator {
   auto GenerateCode() const -> std::string;
 
  private:
-  std::shared_ptr<core::AST> ast_;
-  std::shared_ptr<RuntimeEnvironment> runtime_environment_;
-
   /**
    * Generate string utility functions.
    * @return The string utility functions as assembly code.
    */
   auto GenerateStringUtilities() const -> std::string;
+
+  /* The AST to generate code from */
+  std::shared_ptr<core::AST> ast_;
+  /* Runtime environment for code generation */
+  std::shared_ptr<RuntimeEnvironment> runtime_environment_;
 };
 
 }  // namespace scp::cgen

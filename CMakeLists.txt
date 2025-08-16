@@ -47,7 +47,7 @@ enable_testing()
 add_subdirectory(test)
 
 # Installation rules
-install(TARGETS lexer parser scpc RUNTIME DESTINATION bin)
+install(TARGETS lexer parser cgen scpc RUNTIME DESTINATION bin)
 
 install(
   TARGETS scp_core scp_lexer scp_parser scp_semant scp_cgen

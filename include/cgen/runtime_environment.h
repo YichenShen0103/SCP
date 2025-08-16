@@ -78,9 +78,12 @@ class RuntimeEnvironment {
   auto GetUniqueInputId() -> int;
 
  private:
+  /* Symbol table mapping variable names to their stack allocations and types */
   std::unordered_map<std::string, std::pair<int, core::Type>> symbol_table_;
+  /* Global string data table mapping string literals to their labels */
   std::unordered_map<std::string, std::string> global_string_data_table_;
-  int input_counter_ = 0;
+  /* Counter for unique input IDs */
+  int input_counter_{0};
 };
 
 }  // namespace scp::cgen

@@ -1,15 +1,113 @@
 #include "core/ast.h"
 
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <stack>
 #include <string>
+#include <unordered_map>
 
 #include "cgen/runtime_environment.h"
 #include "constant/error_messages.h"
 #include "core/type.h"
 
 namespace scp::core {
+
+// Helper function to convert string to ASTNodeType
+auto StringToASTNodeType(const std::string &type_str) -> ASTNodeType {
+  static const std::unordered_map<std::string, ASTNodeType> type_map = {
+      {"ROOT", ASTNodeType::ROOT},    {"IDENTIFIER", ASTNodeType::IDENTIFIER}, {"NUMBER", ASTNodeType::NUMBER},
+      {"PLUS", ASTNodeType::PLUS},    {"TIMES", ASTNodeType::TIMES},           {"ASSIGN", ASTNodeType::ASSIGN},
+      {"STRING", ASTNodeType::STRING}};
+
+  auto it = type_map.find(type_str);
+  if (it != type_map.end()) {
+    return it->second;
+  }
+  throw std::runtime_error("Unknown AST node type: " + type_str);
+}
+
+// Helper function to parse a line and extract type and value
+auto ParseLine(const std::string &line, std::string &type, std::string &value) -> int {
+  // Count leading spaces to determine indentation level
+  int indent_level = 0;
+  for (char c : line) {
+    if (c == ' ') {
+      indent_level++;
+    } else {
+      break;
+    }
+  }
+  indent_level /= 2;  // Two spaces per indentation level
+
+  // Find "Type: " and "Value: " patterns
+  auto type_pos = line.find("Type: ");
+  auto value_pos = line.find("Value: ");
+
+  if (type_pos == std::string::npos || value_pos == std::string::npos) {
+    throw std::runtime_error("Invalid line format: " + line);
+  }
+
+  // Extract type (between "Type: " and ", Value:")
+  auto type_start = type_pos + 6;
+  auto type_end = line.find(", Value:");
+  type = line.substr(type_start, type_end - type_start);
+
+  // Extract value (between "Value: '" and "'")
+  auto value_start = value_pos + 7;
+  if (line[value_start] == '\'') {
+    value_start++;  // Skip opening quote
+    auto value_end = line.rfind('\'');
+    value = line.substr(value_start, value_end - value_start);
+  } else {
+    // Handle case where value might not be quoted
+    value = line.substr(value_start);
+    if (!value.empty() && value.back() == '\n') {
+      value.pop_back();
+    }
+  }
+
+  return indent_level;
+}
+
+AST::AST(std::ifstream &file) : name_("ast_from_file"), root_(nullptr) {
+  if (!file.is_open()) {
+    throw std::runtime_error("File is not open");
+  }
+
+  std::string line;
+  std::stack<std::pair<std::shared_ptr<ASTNode>, int>> node_stack;  // (node, indentation_level)
+
+  while (std::getline(file, line)) {
+    if (line.empty() || line.find_first_not_of(" \t\n\r") == std::string::npos) {
+      continue;  // Skip empty lines
+    }
+
+    std::string type_str;
+    std::string value_str;
+    int indent_level = ParseLine(line, type_str, value_str);
+
+    ASTNodeType node_type = StringToASTNodeType(type_str);
+    auto node = std::make_shared<ASTNode>(node_type, value_str);
+
+    // Pop nodes from stack until we find the correct parent
+    while (!node_stack.empty() && node_stack.top().second >= indent_level) {
+      node_stack.pop();
+    }
+
+    if (node_stack.empty()) {
+      // This is the root node
+      root_ = node;
+    } else {
+      // Add as child to the top node in stack
+      node_stack.top().first->AddChild(node);
+    }
+
+    // Push current node to stack
+    node_stack.push({node, indent_level});
+  }
+}
 
 auto AST::ASTNode::TypeCheck(const std::shared_ptr<TypeEnvironment> &environment, bool &has_bug) const -> Type {
   switch (type_) {

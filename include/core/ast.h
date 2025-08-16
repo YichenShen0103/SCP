@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <list>
 #include <memory>
 #include <string>
@@ -138,6 +139,12 @@ class AST {
    * @param root The root node of the AST.
    */
   explicit AST(std::string name, std::shared_ptr<ASTNode> root) : name_(std::move(name)), root_(std::move(root)) {}
+
+  /**
+   * Constructor for the AST using a .ast file
+   * @param file The .ast file
+   */
+  explicit AST(std::ifstream &file);
 
   /**
    * Destructor for the AST.
