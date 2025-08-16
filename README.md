@@ -32,18 +32,28 @@ We use a 1-register stack machine to implement code generator, while providing s
 
 ## Usage and Demo
 
-**Download Spim**
+**Install Dependencies**
 
-Use your favourite package manager to download the MIPS simulator `spim`. If you're using MacOS, you can do this by:
+We provide a cross-platform script to install all required dependencies automatically:
 
 ```sh
-$ brew install spim
+$ ./build_support/package.sh
+```
+
+This script will install:
+- Google Test (gtest) for unit testing
+- SPIM for MIPS simulation
+
+For manual installation on macOS, you can also use:
+
+```sh
+$ brew install googletest spim
 ```
 
 **Compile the project**
 
 ```sh
-$ cd build
+$ mkdir -p build && cd build
 $ cmake ..
 $ make
 ```
