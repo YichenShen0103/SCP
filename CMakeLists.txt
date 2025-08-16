@@ -66,7 +66,7 @@ install(
 # Find development tools
 find_program(
   CLANG_FORMAT_BIN
-  NAMES clang-format clang-format-12 clang-format-14
+  NAMES clang-format clang-format-12 clang-format-14 run_clang_format.py
   HINTS "${CMAKE_SOURCE_DIR}/build_support")
 
 if("${CLANG_FORMAT_BIN}" STREQUAL "CLANG_FORMAT_BIN-NOTFOUND")
@@ -77,7 +77,7 @@ endif()
 
 find_program(
   CLANG_TIDY_BIN
-  NAMES clang-tidy clang-tidy-12
+  NAMES clang-format clang-format-12 clang-format-14 run_clang_format.py
   HINTS "${CMAKE_SOURCE_DIR}/build_support")
 
 if("${CLANG_TIDY_BIN}" STREQUAL "CLANG_TIDY_BIN-NOTFOUND")

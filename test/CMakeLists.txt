@@ -4,20 +4,36 @@ cmake_minimum_required(VERSION 3.16)
 # Find GoogleTest
 find_package(GTest REQUIRED)
 if(NOT GTest_FOUND)
-    message(FATAL_ERROR "GoogleTest not found. Please install it: brew install googletest")
+  message(
+    FATAL_ERROR
+      "GoogleTest not found. Please install it: brew install googletest")
 endif()
 
 # Function to create GoogleTest test executable
 function(create_gtest_executable target_name sources)
-    add_executable(${target_name} ${sources})
-    set_target_properties(${target_name} PROPERTIES
-        CXX_STANDARD 17
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test
-    )
-    target_include_directories(${target_name} PRIVATE ${CMAKE_SOURCE_DIR}/include)
-    target_link_libraries(${target_name} scp_cgen scp_semant GTest::gtest_main)
+  add_executable(${target_name} ${sources})
+  set_target_properties(
+    ${target_name}
+    PROPERTIES CXX_STANDARD 17
+               CXX_STANDARD_REQUIRED ON
+               CXX_EXTENSIONS OFF
+               RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/test)
+    
+    # Handle circular dependencies differently on different platforms
+    if(APPLE)
+        # On macOS, Apple ld doesn't support --start-group/--end-group
+        # Instead, we list libraries multiple times to resolve circular dependencies
+        target_link_libraries(${target_name} 
+            scp_cgen
+            GTest::gtest_main)
+    else()
+        # On Linux and other platforms with GNU ld, use --start-group/--end-group
+        target_link_libraries(${target_name} 
+            -Wl,--start-group 
+            scp_core scp_cgen scp_semant scp_parser scp_lexer 
+            -Wl,--end-group 
+            GTest::gtest_main)
+    endif()
 endfunction()
 
 # Create test executables
